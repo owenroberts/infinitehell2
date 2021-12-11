@@ -21,18 +21,21 @@ class Player extends Sprite {
 
 		this.hasSFX = false;
 
-		this.setupPhyiscs();
-		
+		this.setupPhysics();
+
+		this.halfWidth = this.width / 2;
+		this.halfHeight = this.height / 2;
+
 	}
 
-	setupPhyiscs() {
+	setupPhysics() {
 
 		let parts = []
 
 		this.blocked = { down : null, up : null, right : null, left : null };
 		this.sensors = {};
 
-		let { x, y } = this;
+		let [x, y] = this.position;
 		let [w, h] = [90, 78];
 		let s = 10; // sensor size
 
@@ -52,10 +55,13 @@ class Player extends Sprite {
 			inertia : Infinity,
 			restitution: 0.1,
 			friction: 0.5,
-			parts: parts
+			parts: parts,
+			// isStatic: true
 		};
 		this.body = Body.create(params);
+		this.body.isPlayer = true;
 		Composite.add(engine.world, this.body);
+		console.log(this.body);
 
 		Events.on(engine, 'afterUpdate', this.physicsUpdate.bind(this));
 		Events.on(engine, 'beforeUpdate', event => {
@@ -64,9 +70,13 @@ class Player extends Sprite {
 			// this.blocked.left = false;
 			// this.blocked.up = false;
 		});
-
-		Matter.Events.on(engine, 'collisionActive', event => {
+		let firstCollision = true;
+		Events.on(engine, 'collisionActive', event => {
 			let pairs = event.pairs;
+			if (firstCollision) {
+				// console.log(pairs);
+				firstCollision = false;
+			}
 			for(let i = 0, p = pairs.length; i < p; i++){
 				let pair = pairs[i];
 				if (pair.bodyA === this.sensors.down || pair.bodyB === this.sensors.down) 
@@ -77,13 +87,36 @@ class Player extends Sprite {
 				// 	this.blocked.left = true;
 				// if (pair.bodyA === this.sensors.up || pair.bodyB === this.sensors.up) 
 				// 	this.blocked.up = true;
+				// console.log(pair.bodyA.isTrigger, pair.bodyB.isTrigger);
+				// console.log(pair.bodyA.parent.isPlayer, pair.bodyB.parent.isPlayer);
+
+				if (pair.bodyA.isTrigger && pair.bodyB.parent.isPlayer) {
+					if (!pair.bodyA.calledBack) {
+						pair.bodyA.callback();
+						pair.bodyA.calledBack = true;
+					}
+				}
+				
+				if (pair.bodyB.isTrigger && pair.bodyA.parent.isPlayer) {
+					if (!pair.bodyB.calledBack) {
+						pair.bodyB.callback();
+						pair.bodyB.calledBack = true;
+					}
+				}
+
+				if (pair.bodyA.calledBack) Composite.remove(engine.world, pair.bodyA);
+				if (pair.bodyB.calledBack) Composite.remove(engine.world, pair.bodyB);
+
 			}
 		});
-
 	}
 
 	inputKey(key, state) {
 		this.input[key] = state;
+	}
+
+	translatePosition() {
+		return [-this.x - this.halfWidth, -this.y - this.halfHeight];
 	}
 
 	physicsUpdate() {
@@ -91,6 +124,11 @@ class Player extends Sprite {
 		let state = this.animation.stateName.includes('idle') ?
 			this.animation.state :
 			'idle';
+
+		if (this.blocked.down && this.isJumping) {
+			this.isJumping = false;
+			this.jumpCount = 0;
+		}
 
 		if (this.input.jump) {
 			if (!this.jumpJustPressed) {
@@ -104,11 +142,6 @@ class Player extends Sprite {
 			this.jumpJustPressed = true;
 		} else {
 			this.jumpJustPressed = false;
-		}
-
-		if (this.blocked.down && this.isJumping && !this.jumpJustPressed) {
-			this.isJumping = false;
-			this.jumpCount = 0;
 		}
 
 		if (this.isJumping || !this.blocked.down) {
@@ -125,11 +158,15 @@ class Player extends Sprite {
 			Body.setVelocity(player.body, {x : -3, y : player.body.velocity.y});
 		}
 
-		this.position[0] = this.body.position.x;
-		this.position[1] = this.body.position.y;
+		this.position[0] = Math.round(this.body.position.x);
+		this.position[1] = Math.round(this.body.position.y);
 
 		this.animation.state = state;
 
 		if (this.hasSFX) this.playSFX(speed);
+	}
+
+	display() {
+		super.display(true);
 	}
 }

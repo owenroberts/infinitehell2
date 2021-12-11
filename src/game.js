@@ -62,6 +62,27 @@ function addBody(x, y, size) {
 		size,
 		{...defaultOptions, isStatic: true }
 	);
+
+	const tile = new Sprite(x, y, gme.anims.sprites.test_tile);
+	tile.center = true;
+	gme.scenes.game.addSprite(tile);
+	Composite.add(engine.world, body);
+	return body;
+}
+
+function addTrigger(x, y, w, h, callback) {
+	const body = Bodies.rectangle(
+		Math.round(x), 
+		Math.round(y), 
+		w,
+		h,
+		{
+			isStatic: true, 
+			isSensor: true
+		}
+	);
+	body.isTrigger = true;
+	body.callback = callback;
 	Composite.add(engine.world, body);
 	return body;
 }
@@ -69,7 +90,7 @@ function addBody(x, y, size) {
 gme.start = function() {
 	document.getElementById('splash').remove();
 
-	player = new Player(gme.view.halfWidth, gme.view.halfHeight, gme.anims.sprites.player)
+	player = new Player(0, 0, gme.anims.sprites.player)
 	gme.scenes.game.addSprite(player);
 	
 	const w = gme.view.halfWidth, h = gme.view.halfHeight;
@@ -77,25 +98,84 @@ gme.start = function() {
 	addBody(0, h + 100, 100);
 	addBody(150, h + 100, 100);
 	addBody(300, h + 100, 100);
-	addBody(450, h + 100, 100);
-	addBody(600, h + 100, 100);
-	addBody(750, h + 100, 100);
+
+	addBody(150, h + 1000, 100);
+	addBody(300, h + 1000, 100);
+	addBody(450, h + 1000, 100);
+	addBody(600, h + 1000, 100);
+	addBody(750, h + 1000, 100);
+
+
+	addBody(150, h + 1000, 100);
+	addBody(300, h + 1000, 100);
+	addBody(450, h + 1000, 100);
+	addBody(600, h + 1000, 100);
+	addBody(750, h + 1000, 100);
+
+	addTrigger(-gme.halfWidth / 2, h + 300, gme.width * 2.5, 200, function() {
+		lerpCenter = [...cameraCenter];
+		startLerp = true;
+	});
 
 	gme.scenes.current = 'game';
 	Runner.run(engine); // start physics
-};
 
-gme.update = function(timeElapsed) {
-	// gme.scenes.current.update(timeElapsed / gme.dps);
-	for (let i = 0; i < objects.length; i++) {
-		// objects[i].update();
-	}
 };
+// update by matter ...
 
 gme.draw = function() {
-	if (showPhysics) renderPhysics();
-	gme.scenes.current.display();
+	gme.ctx.save();
+	camera();
+	
+	// if (showPhysics) renderPhysics();
+	gme.scenes.current.display(true);
+	renderDebug();
+	gme.ctx.restore();
 };
+
+// trying this out ...
+// try changing this ...
+
+let centerPlayer = false;
+let cameraCenter = [100, 0];
+let lerpCenter = [0, 0];
+let startLerp = false;
+let lerpSpeed = 8; // higher is slower
+let lerpThreshold = 0.1;
+
+function camera() {
+
+	if (startLerp) {
+		let px = gme.halfWidth - player.x - player.halfWidth;
+		let py = gme.halfHeight - player.y - player.halfHeight;
+
+		let direction = [px - lerpCenter[0], py - lerpCenter[1]];
+
+		lerpCenter[0] += direction[0] / lerpSpeed;
+		lerpCenter[1] += direction[1] / lerpSpeed;
+
+		gme.ctx.translate(lerpCenter[0], lerpCenter[1]);
+
+		if (Math.abs(direction[0]) < lerpThreshold || Math.abs(direction[1]) < lerpThreshold) {
+			startLerp = false;
+			centerPlayer = true;
+		}
+		
+
+	} else if (centerPlayer) {
+		// gme.ctx.translate(gme.halfWidth, gme.halfHeight);
+		gme.ctx.translate(gme.halfWidth - player.x - player.halfWidth, gme.halfHeight - player.y - player.halfHeight);
+	} else {
+		gme.ctx.translate(cameraCenter[0], cameraCenter[1]);
+	}
+}
+
+function renderDebug() {
+	gme.ctx.beginPath();
+	gme.ctx.strokeStyle = '#ffffff';
+	gme.ctx.arc(0, 0, 5, 0, 2 * Math.PI);
+	gme.ctx.stroke();
+}
 
 function renderPhysics() {
 	let lw = gme.ctx.lineWidth;
@@ -107,7 +187,7 @@ function renderPhysics() {
 	gme.ctx.lineWidth = 1;
 	gme.ctx.strokeStyle = '#00dd22';
 
-	gme.ctx.beginPath();
+	
 	const bodies = Composite.allBodies(engine.world);
 	for (let i = 0, len = bodies.length; i < len; i++) {
 		const b = bodies[i];
@@ -117,7 +197,13 @@ function renderPhysics() {
 		// 	gme.ctx.lineTo(b.vertices[j].x, b.vertices[j].y);
 		// }
 		// gme.ctx.lineTo(b.vertices[0].x, b.vertices[0].y);
-		
+		// if (i === 0) {
+		// 	gme.ctx.beginPath();
+		// 	gme.ctx.arc(b.position.x, b.position.y, 5, 0, 2 * Math.PI, false);
+		// 	gme.ctx.stroke();
+		// }
+
+		gme.ctx.beginPath();
 		for (let k = 0, parts = b.parts.length; k < parts; k++) {
 			const p = b.parts[k];
 
@@ -127,10 +213,10 @@ function renderPhysics() {
 			}
 			gme.ctx.lineTo(p.vertices[0].x, p.vertices[0].y);
 		}
-
+		gme.ctx.stroke();
 	}
 
-	gme.ctx.stroke();
+	
 	// console.log(gme.ctx.strokeStyle);
 	gme.ctx.lineWidth = lw;
 	gme.ctx.strokeStyle = ls;
@@ -146,21 +232,18 @@ gme.keyDown = function(key) {
 			break;
 		case 'w':
 		case 'up':
-			player.inputKey('up', true);
+		case 'x':
+		case 'space':
+			player.inputKey('jump', true);
 			break;
 		case 'd':
 		case 'right':
 			player.inputKey('right', true);
 			break;
-		case 's':
-		case 'down':
-			player.inputKey('down', true);
-			break;
-
-		case 'x':
-			player.inputKey('jump', true);
-			break;
-
+		// case 's':
+		// case 'down':
+		// 	player.inputKey('down', true);
+		// 	break;
 		case 'g':
 			// if (!userStarted) userStart();
 		break;
@@ -179,7 +262,9 @@ gme.keyUp = function(key) {
 			break;
 		case 'w':
 		case 'up':
-			player.inputKey('up', false);
+		case 'x':
+		case 'space':
+			player.inputKey('jump', false);
 			break;
 		case 'd':
 		case 'right':
@@ -188,10 +273,6 @@ gme.keyUp = function(key) {
 		case 's':
 		case 'down':
 			player.inputKey('down', false);
-			break;
-
-		case 'x':
-			player.inputKey('jump', false);
 			break;
 	}
 };

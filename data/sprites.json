@@ -1,3 +1,4 @@
 {
-	"player": { "src": "drawings/skully.json" }
+	"player": { "src": "drawings/skully.json" },
+	"test_tile": { "src": "drawings/test_tile.json" }
 }
