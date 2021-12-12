@@ -49,17 +49,16 @@ let physics = new Physics();
 gme.start = function() {
 	document.getElementById('splash').remove();
 
-	player = new Player(100, 100, gme.anims.sprites.player)
+	player = new Player(64, 0, gme.anims.sprites.player)
 	gme.scenes.game.addSprite(player);
 	
 	const w = gme.view.halfWidth, h = gme.view.halfHeight;
 
 	for (let i = 0; i < 4; i++) {
-		physics.addBody(i * 64, h - 100, 64);
+		physics.addBody(64 + i * 64, h - 100, 64);
 	}
 
-	physics.addTrigger(-gme.halfWidth / 2, h + 300, gme.width * 2.5, 200, 
-		() => { camera.lerpToPlayer(); });
+	levels[0] = new Level(0, player.x, h + 100);
 
 	scenery.setup();
 	gme.scenes.current = 'game';
@@ -70,7 +69,13 @@ gme.start = function() {
 gme.draw = function() {
 	gme.ctx.save();
 	gme.ctx.clearRect(0, 0, gme.view.width, gme.view.height);
+
+	// "parrallaxx bg"
+	gme.ctx.save();
+	gme.ctx.translate(player.x / 50, player.y / 50);
 	gme.scenes.scenery.display();
+	gme.ctx.restore();
+	
 	camera.update();
 	physics.render();
 	gme.scenes.current.display(camera.view);
@@ -105,8 +110,8 @@ gme.keyDown = function(key) {
 			// if (!userStarted) loadSound();
 		break;
 		case 't':
-			showPhysics = !showPhysics;
-			console.log('show physies', showPhysics);
+			physics.display = !physics.display;
+			console.log('show physies', physics.display);
 		break;
 
 	}

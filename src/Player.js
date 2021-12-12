@@ -42,15 +42,7 @@ class Player extends HellSprite {
 		let s = 10; // sensor size
 
 		this.sensors.down = Bodies.rectangle(x, y + h / 2, w / 2, s, {isSensor : true});
-		// this.sensors.right = Bodies.rectangle(x + w / 2, y, s, h / 2, {isSensor : true});
-		// this.sensors.left = Bodies.rectangle(x - w / 2, y, s, h / 2, {isSensor : true});
-		// this.sensors.up = Bodies.rectangle(x, y - h / 2, w / 2, s, {isSensor : true});
-
-
 		parts.push(this.sensors.down);
-		// parts.push(this.sensors.left);
-		// parts.push(this.sensors.right);
-		// parts.push(this.sensors.up);
 
 		parts.push(Bodies.rectangle(x, y, w, h));
 		const params = {
@@ -58,7 +50,11 @@ class Player extends HellSprite {
 			restitution: 0.1,
 			friction: 0.5,
 			parts: parts,
-			// isStatic: true
+			collisionFilter: {
+				category: 2,
+			}
+			// isStatic: true,
+
 		};
 		this.body = Body.create(params);
 		this.body.isPlayer = true;
@@ -68,31 +64,25 @@ class Player extends HellSprite {
 		Events.on(physics.engine, 'afterUpdate', this.physicsUpdate.bind(this));
 		Events.on(physics.engine, 'beforeUpdate', event => {
 			this.blocked.down = false;
-			// this.blocked.right = false;
-			// this.blocked.left = false;
-			// this.blocked.up = false;
 		});
 
-		let firstCollision = true;
 		Events.on(physics.engine, 'collisionActive', event => {
 			let pairs = event.pairs;
-			if (firstCollision) {
-				// console.log(pairs);
-				firstCollision = false;
-			}
-			for(let i = 0, p = pairs.length; i < p; i++){
-				let pair = pairs[i];
-				if (pair.bodyA === this.sensors.down || pair.bodyB === this.sensors.down) 
-					this.blocked.down = true;
-				// if (pair.bodyA === this.sensors.right || pair.bodyB === this.sensors.right) 
-				// 	this.blocked.right = true;
-				// if (pair.bodyA === this.sensors.left || pair.bodyB === this.sensors.left) 
-				// 	this.blocked.left = true;
-				// if (pair.bodyA === this.sensors.up || pair.bodyB === this.sensors.up) 
-				// 	this.blocked.up = true;
-				// console.log(pair.bodyA.isTrigger, pair.bodyB.isTrigger);
-				// console.log(pair.bodyA.parent.isPlayer, pair.bodyB.parent.isPlayer);
 
+			for(let i = 0, p = pairs.length; i < p; i++) {
+				let pair = pairs[i];
+				if (pair.bodyA === this.sensors.down || 
+					pair.bodyB === this.sensors.down) {
+					this.blocked.down = true;
+				}
+			}
+		});
+
+		Events.on(physics.engine, 'collisionStart', event => {
+			let pairs = event.pairs;
+
+			for(let i = 0, p = pairs.length; i < p; i++) {
+				let pair = pairs[i];
 				if (pair.bodyA.isTrigger && pair.bodyB.parent.isPlayer) {
 					if (!pair.bodyA.calledBack) {
 						pair.bodyA.callback();
@@ -107,8 +97,8 @@ class Player extends HellSprite {
 					}
 				}
 
-				if (pair.bodyA.calledBack) Composite.remove(physics.engine.world, pair.bodyA);
-				if (pair.bodyB.calledBack) Composite.remove(physics.engine.world, pair.bodyB);
+				// if (pair.bodyA.calledBack) Composite.remove(physics.engine.world, pair.bodyA);
+				// if (pair.bodyB.calledBack) Composite.remove(physics.engine.world, pair.bodyB);
 
 			}
 		});
@@ -133,7 +123,7 @@ class Player extends HellSprite {
 		if (this.input.jump) {
 			if (!this.jumpJustPressed) {
 				if (this.blocked.down || this.jumpCount < this.jumpMax) {
-					Body.setVelocity(this.body, {x : this.body.velocity.x, y : -10});
+					Body.setVelocity(this.body, {x : this.body.velocity.x, y : -12});
 					this.isJumping = true;
 					this.jumpCount++;
 					
