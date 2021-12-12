@@ -1,4 +1,4 @@
-class Player extends Sprite {
+class Player extends HellSprite {
 	constructor(x, y, animation, debug) {
 		super(x, y);
 		this.mapPosition = [Math.round(x), Math.round(y)];
@@ -12,12 +12,12 @@ class Player extends Sprite {
 		this.isJumping = false;
 		this.jumpCount = 0;
 		this.jumpMax = 2;
-
+		
 		this.addAnimation(animation);
-		this.animation.state = 'idle';
+		this.animation.state = 'idle_right';
+		this.direction = 1; // 1 is right -1 is left
 
 		this.input = { right: false, up: false, left: false, down: false, jump: false };
-		this.inBounds = [true, true];
 
 		this.hasSFX = false;
 
@@ -25,6 +25,8 @@ class Player extends Sprite {
 
 		this.halfWidth = this.width / 2;
 		this.halfHeight = this.height / 2;
+
+		console.log('player sprite', this)
 
 	}
 
@@ -36,10 +38,10 @@ class Player extends Sprite {
 		this.sensors = {};
 
 		let [x, y] = this.position;
-		let [w, h] = [90, 78];
+		let [w, h] = [64, 64];
 		let s = 10; // sensor size
 
-		this.sensors.down = Bodies.rectangle(x, y + h / 2, this.width / 2, s, {isSensor : true});
+		this.sensors.down = Bodies.rectangle(x, y + h / 2, w / 2, s, {isSensor : true});
 		// this.sensors.right = Bodies.rectangle(x + w / 2, y, s, h / 2, {isSensor : true});
 		// this.sensors.left = Bodies.rectangle(x - w / 2, y, s, h / 2, {isSensor : true});
 		// this.sensors.up = Bodies.rectangle(x, y - h / 2, w / 2, s, {isSensor : true});
@@ -121,10 +123,7 @@ class Player extends Sprite {
 
 	physicsUpdate() {
 
-		let state = this.animation.stateName.includes('idle') ?
-			this.animation.state :
-			'idle';
-
+		
 		if (this.blocked.down && this.isJumping) {
 			this.isJumping = false;
 			this.jumpCount = 0;
@@ -144,18 +143,22 @@ class Player extends Sprite {
 			this.jumpJustPressed = false;
 		}
 
+		let state = this.direction == 1 ? 'idle_right' : 'idle_left';
+
 		if (this.isJumping || !this.blocked.down) {
-			state = 'jump';
+			state = this.direction == 1 ? 'jump_right' : 'jump_left';
 		}
 
 		if (this.input.right) {
+			Body.setVelocity(player.body, {x : 3, y : player.body.velocity.y});
+			this.direction = 1;
 			if (!this.isJumping) state = 'right';
-			Body.setVelocity(player.body, {x : 3, y : player.body.velocity.y})			
 		}
 
 		if (this.input.left) {
-			if (!this.isJumping) state = 'left';
 			Body.setVelocity(player.body, {x : -3, y : player.body.velocity.y});
+			this.direction = -1;
+			if (!this.isJumping) state = 'left';
 		}
 
 		this.position[0] = Math.round(this.body.position.x);
@@ -166,7 +169,4 @@ class Player extends Sprite {
 		if (this.hasSFX) this.playSFX(speed);
 	}
 
-	display() {
-		super.display(true);
-	}
 }

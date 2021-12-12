@@ -1,4 +1,8 @@
 {
 	"player": { "src": "drawings/skully.json" },
-	"test_tile": { "src": "drawings/test_tile.json" }
+	"test_tile": { "src": "drawings/test_tile.json" },
+	"clouds" : { "src": "drawings/clouds.json" },
+	"fire" : { "src": "drawings/fire.json" },
+	"land" : { "src": "drawings/land.json" },
+	"platforms" : { "src": "drawings/platforms.json" }
 }

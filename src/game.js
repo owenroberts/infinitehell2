@@ -23,7 +23,7 @@ const gme = new Game({
 	// stats: true,
 	suspend: true,
 	events: isMobile ? ['touch'] : ['keyboard', 'mouse'],
-	scenes: ['game', 'splash', 'loading'],
+	scenes: ['game', 'splash', 'loading', 'scenery'],
 	bounds: {
 		left: -1024,
 		top: 1024,
@@ -40,10 +40,11 @@ gme.load({
 }, false);
 
 let player;
+let scenery = new Scenery();
 
 /* physics */
 const  { Engine, Bodies, Body, Composite, Runner, Events } = Matter;
-const showPhysics = true;
+let showPhysics = true;
 const engine = Engine.create();
 engine.gravity.y = 2;
 const objects = [];
@@ -63,7 +64,7 @@ function addBody(x, y, size) {
 		{...defaultOptions, isStatic: true }
 	);
 
-	const tile = new Sprite(x, y, gme.anims.sprites.test_tile);
+	const tile = new HellSprite(x, y, gme.anims.sprites.test_tile);
 	tile.center = true;
 	gme.scenes.game.addSprite(tile);
 	Composite.add(engine.world, body);
@@ -90,45 +91,47 @@ function addTrigger(x, y, w, h, callback) {
 gme.start = function() {
 	document.getElementById('splash').remove();
 
-	player = new Player(0, 0, gme.anims.sprites.player)
+	player = new Player(100, 100, gme.anims.sprites.player)
 	gme.scenes.game.addSprite(player);
 	
 	const w = gme.view.halfWidth, h = gme.view.halfHeight;
 
-	addBody(0, h + 100, 100);
-	addBody(150, h + 100, 100);
-	addBody(300, h + 100, 100);
+	addBody(0, h + 100, 64);
+	addBody(64, h + 100, 64);
+	addBody(128, h + 100, 64);
+	addBody(128 + 64, h + 100, 64);
 
-	addBody(150, h + 1000, 100);
-	addBody(300, h + 1000, 100);
-	addBody(450, h + 1000, 100);
-	addBody(600, h + 1000, 100);
-	addBody(750, h + 1000, 100);
+	addBody(150, h + 1000, 64);
+	addBody(300, h + 1000, 64);
+	addBody(450, h + 1000, 64);
+	addBody(600, h + 1000, 64);
+	addBody(750, h + 1000, 64);
 
-
-	addBody(150, h + 1000, 100);
-	addBody(300, h + 1000, 100);
-	addBody(450, h + 1000, 100);
-	addBody(600, h + 1000, 100);
-	addBody(750, h + 1000, 100);
+	addBody(150, h + 1000, 64);
+	addBody(300, h + 1000, 64);
+	addBody(450, h + 1000, 64);
+	addBody(600, h + 1000, 64);
+	addBody(750, h + 1000, 64);
 
 	addTrigger(-gme.halfWidth / 2, h + 300, gme.width * 2.5, 200, function() {
 		lerpCenter = [...cameraCenter];
 		startLerp = true;
 	});
 
+	scenery.setup();
 	gme.scenes.current = 'game';
 	Runner.run(engine); // start physics
-
 };
 // update by matter ...
 
 gme.draw = function() {
 	gme.ctx.save();
+	gme.ctx.clearRect(0, 0, gme.view.width, gme.view.height);
+	gme.scenes.scenery.display();
 	camera();
 	
-	// if (showPhysics) renderPhysics();
-	gme.scenes.current.display(true);
+	if (showPhysics) renderPhysics();
+	gme.scenes.current.display(cameraView);
 	renderDebug();
 	gme.ctx.restore();
 };
@@ -137,6 +140,7 @@ gme.draw = function() {
 // try changing this ...
 
 let centerPlayer = false;
+let cameraView = [0, 0, gme.width, gme.height];
 let cameraCenter = [100, 0];
 let lerpCenter = [0, 0];
 let startLerp = false;
@@ -160,13 +164,18 @@ function camera() {
 			startLerp = false;
 			centerPlayer = true;
 		}
-		
+		cameraView[0] = -lerpCenter[0];
+		cameraView[1] = -lerpCenter[1];
 
 	} else if (centerPlayer) {
 		// gme.ctx.translate(gme.halfWidth, gme.halfHeight);
 		gme.ctx.translate(gme.halfWidth - player.x - player.halfWidth, gme.halfHeight - player.y - player.halfHeight);
+		cameraView[0] = gme.halfWidth - player.x - player.halfWidth;
+		cameraView[1] =  gme.halfHeight - player.y - player.halfHeight;
 	} else {
 		gme.ctx.translate(cameraCenter[0], cameraCenter[1]);
+		cameraView[0] = -cameraCenter[0];
+		cameraView[1] = -cameraCenter[1];
 	}
 }
 
@@ -182,7 +191,7 @@ function renderPhysics() {
 	let ls = gme.ctx.strokeStyle;
 	// console.log(lw, ls);
 
-	gme.ctx.clearRect(0, 0, gme.view.width, gme.view.height);
+	// gme.ctx.clearRect(0, 0, gme.view.width, gme.view.height);
 
 	gme.ctx.lineWidth = 1;
 	gme.ctx.strokeStyle = '#00dd22';
@@ -249,6 +258,10 @@ gme.keyDown = function(key) {
 		break;
 		case 'h':
 			// if (!userStarted) loadSound();
+		break;
+		case 't':
+			showPhysics = !showPhysics;
+			console.log('show physies', showPhysics);
 		break;
 
 	}
