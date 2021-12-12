@@ -62,18 +62,19 @@ class Player extends HellSprite {
 		};
 		this.body = Body.create(params);
 		this.body.isPlayer = true;
-		Composite.add(engine.world, this.body);
+		Composite.add(physics.engine.world, this.body);
 		console.log(this.body);
 
-		Events.on(engine, 'afterUpdate', this.physicsUpdate.bind(this));
-		Events.on(engine, 'beforeUpdate', event => {
+		Events.on(physics.engine, 'afterUpdate', this.physicsUpdate.bind(this));
+		Events.on(physics.engine, 'beforeUpdate', event => {
 			this.blocked.down = false;
 			// this.blocked.right = false;
 			// this.blocked.left = false;
 			// this.blocked.up = false;
 		});
+
 		let firstCollision = true;
-		Events.on(engine, 'collisionActive', event => {
+		Events.on(physics.engine, 'collisionActive', event => {
 			let pairs = event.pairs;
 			if (firstCollision) {
 				// console.log(pairs);
@@ -106,8 +107,8 @@ class Player extends HellSprite {
 					}
 				}
 
-				if (pair.bodyA.calledBack) Composite.remove(engine.world, pair.bodyA);
-				if (pair.bodyB.calledBack) Composite.remove(engine.world, pair.bodyB);
+				if (pair.bodyA.calledBack) Composite.remove(physics.engine.world, pair.bodyA);
+				if (pair.bodyB.calledBack) Composite.remove(physics.engine.world, pair.bodyB);
 
 			}
 		});
