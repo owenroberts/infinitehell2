@@ -41,7 +41,7 @@ gme.load({
 
 const { Engine, Bodies, Body, Composite, Runner, Events } = Matter;
 let player;
-let levels = [];
+gme.levels = [];
 let scenery = new Scenery();
 let camera = new Camera();
 let physics = new Physics();
@@ -54,11 +54,13 @@ gme.start = function() {
 	
 	const w = gme.view.halfWidth, h = gme.view.halfHeight;
 
-	for (let i = 0; i < 4; i++) {
-		physics.addBody(64 + i * 64, h - 100, 64);
-	}
+	// for (let i = 0; i < 4; i++) {
+	// 	physics.addBody(64 + i * 64, h - 100, 64);
+	// }
 
-	levels[0] = new Level(0, player.x, h + 100);
+	gme.levels = [];
+	let firstLevel = new Level([0,0], player.x - 200, h + 100, 'A', true);
+	gme.currentLevel = [0, 0];
 
 	scenery.setup();
 	gme.scenes.current = 'game';

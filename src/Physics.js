@@ -11,7 +11,10 @@ class Physics {
 	}
 
 	addBody(x, y, size) {
-		const body = Bodies.rectangle(
+		const tile = new HellSprite(x, y, gme.anims.sprites.test_tile);
+		tile.center = true;
+		gme.scenes.game.addSprite(tile);
+		tile.body = Bodies.rectangle(
 			Math.round(x), 
 			Math.round(y), 
 			size,
@@ -19,18 +22,15 @@ class Physics {
 			{
 				...this.defaultOptions,
 				collisionFilter: {
-					category: 1,
-					mask: 2,
+					category: 0b0010,
+					mask: 0b0001,
 				},
 				isStatic: true
 			}
 		);
-		const tile = new HellSprite(x, y, gme.anims.sprites.test_tile);
-		tile.center = true;
-		gme.scenes.game.addSprite(tile);
-		Composite.add(this.engine.world, body);
-		return body;
-		console.log(body);
+		
+		Composite.add(this.engine.world, tile.body);
+		return tile;
 	}
 
 	addTrigger(levelIndex, x, y, w, h, callback) {
@@ -43,8 +43,8 @@ class Physics {
 				isStatic: true, 
 				isSensor: true,
 				collisionFilter: {
-					category: 3,
-					mask: 2,
+					category: 0b0100,
+					mask: 0b0001,
 				}
 			}
 		);
@@ -52,7 +52,6 @@ class Physics {
 		body.levelIndex = levelIndex;
 		body.callback = callback;
 		Composite.add(this.engine.world, body);
-		console.log(body);
 		return body;
 	}
 

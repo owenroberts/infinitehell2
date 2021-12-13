@@ -51,7 +51,7 @@ class Player extends HellSprite {
 			friction: 0.5,
 			parts: parts,
 			collisionFilter: {
-				category: 2,
+				category: 0b0001,
 			}
 			// isStatic: true,
 
@@ -71,8 +71,10 @@ class Player extends HellSprite {
 
 			for(let i = 0, p = pairs.length; i < p; i++) {
 				let pair = pairs[i];
-				if (pair.bodyA === this.sensors.down || 
-					pair.bodyB === this.sensors.down) {
+				if ((pair.bodyA === this.sensors.down || 
+					pair.bodyB === this.sensors.down) 
+					&& !pair.bodyA.isTrigger && !pair.bodyB.isTrigger) {
+					// console.log(pair.bodyA.isTrigger, pair.bodyB.isTrigger)
 					this.blocked.down = true;
 				}
 			}
@@ -84,17 +86,11 @@ class Player extends HellSprite {
 			for(let i = 0, p = pairs.length; i < p; i++) {
 				let pair = pairs[i];
 				if (pair.bodyA.isTrigger && pair.bodyB.parent.isPlayer) {
-					if (!pair.bodyA.calledBack) {
-						pair.bodyA.callback();
-						pair.bodyA.calledBack = true;
-					}
+					pair.bodyA.callback();
 				}
 				
 				if (pair.bodyB.isTrigger && pair.bodyA.parent.isPlayer) {
-					if (!pair.bodyB.calledBack) {
-						pair.bodyB.callback();
-						pair.bodyB.calledBack = true;
-					}
+					pair.bodyB.callback();
 				}
 
 				// if (pair.bodyA.calledBack) Composite.remove(physics.engine.world, pair.bodyA);
@@ -136,8 +132,11 @@ class Player extends HellSprite {
 
 		let state = this.direction == 1 ? 'idle_right' : 'idle_left';
 
+
+
 		if (this.isJumping || !this.blocked.down) {
 			state = this.direction == 1 ? 'jump_right' : 'jump_left';
+			// camera.lerpToPlayer();
 		}
 
 		if (this.input.right) {
