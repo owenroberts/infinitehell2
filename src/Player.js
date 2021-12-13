@@ -7,7 +7,7 @@ class Player extends HellSprite {
 
 		this.debug = debug || false;
 		this.speed = [1, 1];
-		this.jumpSpeed = -22;
+		this.jumpSpeed = -24;
 		this.jumpJustPressed = false;
 		this.isJumping = false;
 		this.jumpCount = 0;

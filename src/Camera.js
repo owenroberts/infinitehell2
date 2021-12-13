@@ -8,8 +8,8 @@ class Camera {
 		this.lerp = {
 			center: [0, 0],
 			focus: [0, 0],
-			speed: 16, // higher is slower,
-			threshold: 0.1, // how close to get to player position 
+			speed: 8, // higher is slower,
+			threshold: 0.05, // how close to get to player position 
 		};
 		this.waitToSet = false;
 
@@ -28,19 +28,25 @@ class Camera {
 
 			let px = -player.x - player.halfWidth;
 			let py = -player.y - player.halfHeight;
-			let direction = [px - this.lerp.center[0], py - this.lerp.center[1]];
-			this.lerp.center[0] += Math.floor(direction[0] / this.lerp.speed);
-			this.lerp.center[1] += Math.floor(direction[1] / this.lerp.speed);
+			let lerp = [
+				(px - this.lerp.center[0]) / this.lerp.speed, 
+				(py - this.lerp.center[1]) / this.lerp.speed
+			];
+			this.lerp.center[0] += lerp[0];
+			this.lerp.center[1] += lerp[1];
 
-			let focusDirection = [gme.halfWidth - this.lerp.focus[0], gme.halfHeight - this.lerp.focus[1]]
-			this.lerp.focus[0] += Math.floor(focusDirection[0] / this.lerp.speed);
-			this.lerp.focus[1] += Math.floor(focusDirection[1] / this.lerp.speed);
+			let focusLerp = [
+				(gme.halfWidth - this.lerp.focus[0]) / this.lerp.speed, 
+				(gme.halfHeight - this.lerp.focus[1]) / this.lerp.speed
+			];
+			this.lerp.focus[0] += focusLerp[0];
+			this.lerp.focus[1] += focusLerp[1];
 
-			gme.ctx.translate(this.lerp.focus[0], this.lerp.focus[1]);
+			gme.ctx.translate(Math.floor(this.lerp.focus[0]), Math.floor(this.lerp.focus[1]));
 			gme.ctx.scale(this.zoom, this.zoom);
-			gme.ctx.translate(this.lerp.center[0], this.lerp.center[1]);
+			gme.ctx.translate(Math.floor(this.lerp.center[0]), Math.floor(this.lerp.center[1]));
 
-			if (Math.abs(direction[0]) < this.lerp.threshold || Math.abs(direction[1]) < this.lerp.threshold) {
+			if (Math.abs(lerp[0]) < this.lerp.threshold || Math.abs(lerp[1]) < this.lerp.threshold) {
 				// console.log('lerp done');
 				this.state = 'view';
 				this.focus = [gme.halfWidth, gme.halfHeight];

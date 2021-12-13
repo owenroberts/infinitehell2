@@ -104,7 +104,6 @@ gme.reset = function() {
 	camera.center = [0, 0];
 	camera.focus = [-256, gme.view.halfHeight];
 	camera.state = 'view';
-
 };
 
 /* events */

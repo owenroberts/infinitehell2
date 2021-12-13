@@ -40,9 +40,11 @@ class Level {
 
 		// console.log(indexes, ringNumber);
 		gme.levels.push(this);
-		
+
 		if (ringNumber >= 2 && this.tiles.length === 0) this.addPlatforms(levelType);
 		if (ringNumber >= 1) this.addLevels(ringNumber);
+
+		
 	}
 
 	addPlatforms(parts) {
