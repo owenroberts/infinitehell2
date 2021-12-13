@@ -1,12 +1,12 @@
 class Physics {
 	constructor() {
-		this.display = true;
+		this.display = false;
 		this.engine = Engine.create();
 		this.engine.gravity.y = 2;
 
 		this.defaultOptions = {
-			restitution: 0.5,
-			friction: 0.9,
+			restitution: 0.1,
+			friction: 0.05,
 		};
 	}
 

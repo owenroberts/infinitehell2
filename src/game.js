@@ -41,6 +41,7 @@ gme.load({
 
 const { Engine, Bodies, Body, Composite, Runner, Events } = Matter;
 let player;
+let firstLevel;
 gme.levels = [];
 let scenery = new Scenery();
 let camera = new Camera();
@@ -49,14 +50,16 @@ let physics = new Physics();
 gme.start = function() {
 	document.getElementById('splash').remove();
 
-	player = new Player(256 + 128, 0, gme.anims.sprites.player)
+	player = new Player(256 + 128, -512, gme.anims.sprites.player);
+	player.landed = false;
 	gme.scenes.game.addSprite(player);
-	
-	const w = gme.view.halfWidth, h = gme.view.halfHeight;
+
+	camera.focus = [-256, gme.view.halfHeight];
 
 	gme.levels = [];
 	gme.currentLevel = [0, 0];
-	let firstLevel = new Level([0,0], 0, 0, 3, '000000111');
+	gme.lowestLevel = 0;
+	firstLevel = new Level([0,0], 0, 0, 3, '000000111');
 	
 	scenery.setup();
 	gme.scenes.current = 'game';
@@ -78,6 +81,30 @@ gme.draw = function() {
 	physics.render();
 	gme.scenes.current.display(camera.view);
 	gme.ctx.restore();
+
+	if (player.y > gme.lowestLevel + gme.view.height) {
+		console.log('reset');
+		gme.reset();		
+	}
+};
+
+gme.reset = function() {
+	for (let i = 0; i < gme.levels.length; i++) {
+		gme.levels[i].remove();
+	}
+	gme.levels = [];
+	gme.currentLevel = [0, 0];
+	gme.lowestLevel = 0;
+	firstLevel = new Level([0,0], 0, 0, 3, '000000111');
+
+	Body.setPosition(player.body, { x : 256 + 128, y : -512 });
+	Body.setVelocity(player.body, { x : 0, y : 0 });
+	player.landed = false;
+
+	camera.center = [0, 0];
+	camera.focus = [-256, gme.view.halfHeight];
+	camera.state = 'view';
+
 };
 
 /* events */

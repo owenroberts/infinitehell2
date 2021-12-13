@@ -6,29 +6,31 @@ class Level {
 		this.tiles = [];
 		this.levelType = levelType;
 
+		if (y > gme.lowestLevel) gme.lowestLevel = y;
+
 		// player enters level
 		this.width = Constants.TILE_SIZE * Constants.CELL_WIDTH * Constants.GRID_WIDTH;
 		this.height = Constants.TILE_SIZE * Constants.CELL_HEIGHT * Constants.GRID_HEIGHT;
 		this.trigger = physics.addTrigger(this.indexes, x + this.width / 2, y, this.width, this.height, () => {
 			// console.log('triggered', this.indexes);
+			// console.log(this.indexes, gme.currentLevel);
 			if (this.indexes[0] === gme.currentLevel[0] && 
 				this.indexes[1] === gme.currentLevel[1]) {
 				return;
 			}
 
-			// camera.lerpToPlayer();
+			camera.lerpToPlayer();
 
 			gme.currentLevel[0] = this.indexes[0];
 			gme.currentLevel[1] = this.indexes[1];
-			console.log(gme.currentLevel);
 
 			for (let i = 0; i < gme.levels.length; i++) {
 				let indexes = gme.levels[i].indexes;
 				let dx = Math.abs(indexes[0] - this.indexes[0]);
 				let dy = Math.abs(indexes[1] - this.indexes[1]);
-				console.log(dx, dy);
+				// console.log(dx, dy);
 				if (dx > 3 || dy > 3) {
-					console.log('remove', indexes);
+					// console.log('remove', indexes);
 					gme.levels[i].remove();
 				}
 			}
@@ -38,8 +40,8 @@ class Level {
 
 		// console.log(indexes, ringNumber);
 		gme.levels.push(this);
-
-		if (ringNumber >= 2) this.addPlatforms(levelType);
+		
+		if (ringNumber >= 2 && this.tiles.length === 0) this.addPlatforms(levelType);
 		if (ringNumber >= 1) this.addLevels(ringNumber);
 	}
 
@@ -109,6 +111,6 @@ class Level {
 		}
 		Composite.remove(physics.engine.world, this.trigger);
 		gme.levels.splice(gme.levels.indexOf(this), 1);
-		console.log(gme.levels);
+		// console.log(gme.levels);
 	}
 }

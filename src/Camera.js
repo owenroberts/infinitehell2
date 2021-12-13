@@ -4,12 +4,12 @@ class Camera {
 		this.zoom = 1;
 		this.center = [0, 0];
 		this.focus = [0, 0];
-		this.state = 'player'; // lerp, player, view
+		this.state = 'view'; // lerp, player, view
 		this.lerp = {
 			center: [0, 0],
 			focus: [0, 0],
-			speed: 8, // higher is slower,
-			threshold: 1, // how close to get to player position 
+			speed: 16, // higher is slower,
+			threshold: 0.1, // how close to get to player position 
 		};
 		this.waitToSet = false;
 
@@ -18,6 +18,7 @@ class Camera {
 	lerpToPlayer() {
 		if (this.state == 'view') {
 			this.lerp.center = [...this.center];
+			this.lerp.focus = [...this.focus];
 			this.state = 'lerp';
 		}
 	}
@@ -35,14 +36,13 @@ class Camera {
 			this.lerp.focus[0] += Math.floor(focusDirection[0] / this.lerp.speed);
 			this.lerp.focus[1] += Math.floor(focusDirection[1] / this.lerp.speed);
 
-
 			gme.ctx.translate(this.lerp.focus[0], this.lerp.focus[1]);
 			gme.ctx.scale(this.zoom, this.zoom);
 			gme.ctx.translate(this.lerp.center[0], this.lerp.center[1]);
 
 			if (Math.abs(direction[0]) < this.lerp.threshold || Math.abs(direction[1]) < this.lerp.threshold) {
 				// console.log('lerp done');
-				this.state = 'player';
+				this.state = 'view';
 				this.focus = [gme.halfWidth, gme.halfHeight];
 				this.center = [-player.x - player.halfWidth, -player.y - player.halfHeight];
 			}
@@ -56,8 +56,10 @@ class Camera {
 			gme.ctx.scale(this.zoom, this.zoom);
 			gme.ctx.translate(-player.x - player.halfWidth, -player.y - player.halfHeight);
 
-			this.view[0] = -gme.halfWidth - player.x - player.halfWidth;
-			this.view[1] = -gme.halfHeight - player.y - player.halfHeight;
+			this.view[0] = -gme.halfWidth + player.x + player.halfWidth;
+			this.view[1] = -gme.halfHeight + player.y + player.halfHeight;
+
+			// console.log(this.view);
 
 		} else if (this.state === 'view') {
 			gme.ctx.translate(this.focus[0], this.focus[1]);
@@ -66,6 +68,8 @@ class Camera {
 
 			this.view[0] = -this.focus[0] - this.center[0];
 			this.view[1] = -this.focus[1] - this.center[1];
+
+			// console.log(this.focus, this.center, this.view);
 		}
 	}
 }

@@ -7,7 +7,7 @@ class Player extends HellSprite {
 
 		this.debug = debug || false;
 		this.speed = [1, 1];
-		this.jumpSpeed = -20;
+		this.jumpSpeed = -22;
 		this.jumpJustPressed = false;
 		this.isJumping = false;
 		this.jumpCount = 0;
@@ -47,8 +47,8 @@ class Player extends HellSprite {
 		parts.push(Bodies.rectangle(x, y, w, h));
 		const params = {
 			inertia : Infinity,
-			restitution: 0.1,
-			friction: 0.5,
+			restitution: 0.25,
+			friction: 0.05,
 			parts: parts,
 			collisionFilter: {
 				category: 0b0001,
@@ -76,11 +76,13 @@ class Player extends HellSprite {
 					&& !pair.bodyA.isTrigger && !pair.bodyB.isTrigger) {
 					// console.log(pair.bodyA.isTrigger, pair.bodyB.isTrigger)
 					this.blocked.down = true;
+					if (!player.landed) player.landed = true;
 				}
 			}
 		});
 
 		Events.on(physics.engine, 'collisionStart', event => {
+			if (!player.landed) return;
 			let pairs = event.pairs;
 
 			for(let i = 0, p = pairs.length; i < p; i++) {
