@@ -68,6 +68,11 @@ gme.start = function() {
 // update by matter ...
 
 gme.draw = function() {
+
+	for (let i = 0; i < gme.levels.length; i++) {
+		gme.levels[i].updateTiles();
+	}
+
 	gme.ctx.save();
 	gme.ctx.clearRect(0, 0, gme.view.width, gme.view.height);
 
@@ -83,7 +88,6 @@ gme.draw = function() {
 	gme.ctx.restore();
 
 	if (player.y > gme.lowestLevel + gme.view.height) {
-		console.log('reset');
 		gme.reset();		
 	}
 };

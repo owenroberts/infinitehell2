@@ -4,6 +4,9 @@ class Level {
 		this.x = x;
 		this.y = y;
 		this.tiles = [];
+		this.tilesAdded = false;
+		this.tilePositions = [];
+		this.tileCount = 0;
 		this.levelType = levelType;
 
 		if (y > gme.lowestLevel) gme.lowestLevel = y;
@@ -41,13 +44,21 @@ class Level {
 		// console.log(indexes, ringNumber);
 		gme.levels.push(this);
 
-		if (ringNumber >= 2 && this.tiles.length === 0) this.addPlatforms(levelType);
+		if (ringNumber >= 2) this.addPlatforms(levelType);
 		if (ringNumber >= 1) this.addLevels(ringNumber);
 
-		
+	}
+
+	updateTiles() {
+		if (this.tileCount === this.tilePositions.length) return;
+		let [x, y] = this.tilePositions[this.tileCount];
+		this.tiles.push(physics.addBody(x, y, Constants.TILE_SIZE));
+		this.tileCount++;
 	}
 
 	addPlatforms(parts) {
+		if (this.tilesAdded) return;
+		this.tilesAdded = true;
 		// parts string w 9 01 -- probably cooler way to do this
 		let { x, y } = this;
 
@@ -65,9 +76,9 @@ class Level {
 				let _x = (i % 3) * Constants.TILE_SIZE * Constants.CELL_WIDTH + Constants.HALF_TILE_SIZE;
 				let _y = Math.floor(i / 3) * Constants.TILE_SIZE * Constants.CELL_HEIGHT - Constants.TILE_SIZE;
 
-				this.tiles.push(physics.addBody(x + _x, y + _y,  Constants.TILE_SIZE));
-				this.tiles.push(physics.addBody(x + _x + Constants.TILE_SIZE, y + _y,  Constants.TILE_SIZE));
-				this.tiles.push(physics.addBody(x + _x + Constants.TILE_SIZE * 2, y + _y,  Constants.TILE_SIZE));
+				this.tilePositions.push([x + _x, y + _y]);
+				this.tilePositions.push([x + _x + Constants.TILE_SIZE, y + _y]);
+				this.tilePositions.push([x + _x + Constants.TILE_SIZE * 2, y + _y]);
 
 			}
 
