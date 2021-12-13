@@ -1,0 +1,8 @@
+const Constants = {
+	TILE_SIZE: 64,
+	HALF_TILE_SIZE: 32,
+	CELL_WIDTH: 3,
+	CELL_HEIGHT: 1,
+	GRID_WIDTH: 3,
+	GRID_HEIGHT: 3,
+};

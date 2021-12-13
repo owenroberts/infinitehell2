@@ -4,7 +4,7 @@ class Camera {
 		this.zoom = 1;
 		this.center = [0, 0];
 		this.focus = [0, 0];
-		this.state = 'view'; // lerp, player, view
+		this.state = 'player'; // lerp, player, view
 		this.lerp = {
 			center: [0, 0],
 			focus: [0, 0],
@@ -42,7 +42,7 @@ class Camera {
 
 			if (Math.abs(direction[0]) < this.lerp.threshold || Math.abs(direction[1]) < this.lerp.threshold) {
 				// console.log('lerp done');
-				this.state = 'view';
+				this.state = 'player';
 				this.focus = [gme.halfWidth, gme.halfHeight];
 				this.center = [-player.x - player.halfWidth, -player.y - player.halfHeight];
 			}
@@ -56,8 +56,8 @@ class Camera {
 			gme.ctx.scale(this.zoom, this.zoom);
 			gme.ctx.translate(-player.x - player.halfWidth, -player.y - player.halfHeight);
 
-			this.view[0] = gme.halfWidth - player.x - player.halfWidth;
-			this.view[1] =  gme.halfHeight - player.y - player.halfHeight;
+			this.view[0] = -gme.halfWidth - player.x - player.halfWidth;
+			this.view[1] = -gme.halfHeight - player.y - player.halfHeight;
 
 		} else if (this.state === 'view') {
 			gme.ctx.translate(this.focus[0], this.focus[1]);

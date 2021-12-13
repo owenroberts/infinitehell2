@@ -49,19 +49,15 @@ let physics = new Physics();
 gme.start = function() {
 	document.getElementById('splash').remove();
 
-	player = new Player(64, 0, gme.anims.sprites.player)
+	player = new Player(256 + 128, 0, gme.anims.sprites.player)
 	gme.scenes.game.addSprite(player);
 	
 	const w = gme.view.halfWidth, h = gme.view.halfHeight;
 
-	// for (let i = 0; i < 4; i++) {
-	// 	physics.addBody(64 + i * 64, h - 100, 64);
-	// }
-
 	gme.levels = [];
-	let firstLevel = new Level([0,0], player.x - 200, h + 100, 'A', true);
 	gme.currentLevel = [0, 0];
-
+	let firstLevel = new Level([0,0], 0, 0, 3, '000000111');
+	
 	scenery.setup();
 	gme.scenes.current = 'game';
 	Runner.run(physics.engine); // start physics
