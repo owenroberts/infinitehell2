@@ -38,7 +38,7 @@ class Player extends HellSprite {
 		this.sensors = {};
 
 		let [x, y] = this.position;
-		let [w, h] = [64, 76];
+		let [w, h] = [56, 56];
 		let s = 10; // sensor size
 
 		this.sensors.down = Bodies.rectangle(x, y + h / 2, w / 2, s, {isSensor : true});
@@ -117,10 +117,6 @@ class Player extends HellSprite {
 		Body.setVelocity(this.body, { x : 0, y : 0 });
 	}
 
-	translatePosition() {
-		return [-this.x - this.halfWidth, -this.y - this.halfHeight];
-	}
-
 	physicsUpdate() {
 		
 		if (this.blocked.down && this.isJumping) {
@@ -144,7 +140,6 @@ class Player extends HellSprite {
 						this.sfx.jump[0].currentTime = 0;
 						this.sfx.jump[0].play();
 					}
-					console.log('jump');
 				}
 			}
 			this.jumpJustPressed = true;
@@ -194,7 +189,6 @@ class Player extends HellSprite {
 
 		this.walkCount = 0;
 		this.walkInterval = 30; // 24 / 2 + 1
-
 	}
 
 	playSFX(velocity, isOnGround) {
