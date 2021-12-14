@@ -9,7 +9,7 @@ class Player extends HellSprite {
 		this.speed = [1, 1];
 		this.jumpSpeed = Constants.PLAYER_JUMP_SPEED;
 		this.jumpJustPressed = false;
-		this.isJumping = false;
+		this.isJumping = true; // starts out falling
 		this.jumpCount = 0;
 		this.jumpMax = 2;
 		
@@ -28,7 +28,6 @@ class Player extends HellSprite {
 		this.halfHeight = this.height / 2;
 
 		console.log('player sprite', this)
-
 	}
 
 	setupPhysics() {
@@ -128,6 +127,7 @@ class Player extends HellSprite {
 			this.isJumping = false;
 			this.jumpCount = 0;
 			this.animation.cancelOverride();
+			if (this.hasSFX) this.sfx.jump[0].play();
 		}
 
 		if (this.input.jump) {
@@ -139,7 +139,12 @@ class Player extends HellSprite {
 					this.animation.overrideProperty('wiggleSpeed', 5);
 					this.animation.overrideProperty('wiggleSpeed', 2);
 					this.animation.overrideProperty('wiggleSegments', true);
-
+					if (this.hasSFX) {
+						this.sfx.jump[0].pause();
+						this.sfx.jump[0].currentTime = 0;
+						this.sfx.jump[0].play();
+					}
+					console.log('jump');
 				}
 			}
 			this.jumpJustPressed = true;
@@ -173,7 +178,35 @@ class Player extends HellSprite {
 
 		this.animation.state = state;
 
-		if (this.hasSFX) this.playSFX(speed);
+		if (this.hasSFX) this.playSFX(this.body.velocity, this.blocked.down);
+	}
+
+	addSFX(sfx) {
+		this.sfx = {};
+		this.hasSFX = true;
+
+		sfx.forEach(clip => {
+			const f = clip.currentSrc.split('/').pop();
+			const type = f.split('_')[0];
+			if (!this.sfx[type]) this.sfx[type] = [];
+			this.sfx[type].push(clip);
+		});
+
+		this.walkCount = 0;
+		this.walkInterval = 30; // 24 / 2 + 1
+
+	}
+
+	playSFX(velocity, isOnGround) {
+		if (Math.abs(velocity.x) > 0 && this.walkCount === 0 && isOnGround) {
+			let index = Cool.randomInt(this.sfx.walk.length - 1);
+			this.sfx.walk[index].play();
+			this.walkCount++;
+		} else if (velocity.x === 0 || this.walkCount === this.walkInterval || !isOnGround) {
+			this.walkCount = 0;
+		} else {
+			this.walkCount++;
+		}
 	}
 
 }

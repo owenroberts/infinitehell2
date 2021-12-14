@@ -54,8 +54,11 @@ gme.start = function() {
 	player = new Player(Constants.PLAYER_START_X, Constants.PLAYER_START_Y, gme.anims.sprites.player);
 	gme.scenes.game.addSprite(player);
 
-	let title = new HellSprite(600, -130, gme.anims.sprites.title);
-	gme.scenes.game.addToDisplay(title);
+	let instructions = new HellSprite(600, -130, gme.anims.sprites.instructions);
+	gme.scenes.game.addToDisplay(instructions);
+
+	let splash = new HellSprite(350, -200, gme.anims.sprites.splash);
+	gme.scenes.splash.addToDisplay(splash);
 
 	camera.focus = [Constants.CAMERA_START_X, gme.view.halfHeight];
 
@@ -65,11 +68,19 @@ gme.start = function() {
 	firstLevel = new Level([0,0], 0, 0, 4, '000000111');
 	
 	scenery.setup();
-	gme.scenes.current = 'game';
-	Runner.run(physics.engine); // start physics
+	gme.scenes.current = 'splash';
 };
 
 // update by matter ...
+
+function startGame(withSound) {
+	if (withSound) {
+		bgMusic();
+		sfxSetup();
+	}
+	gme.scenes.current = 'game';
+	Runner.run(physics.engine); // start physics
+}
 
 gme.draw = function() {
 
@@ -173,6 +184,43 @@ function bgMusic() {
 	doodoo.setBPM(120);
 }
 
+function sfxSetup() {
+	const sfx = [];
+	const audioFiles = [
+		'walk_6.mp3',
+		'walk_5.mp3',
+		'walk_4.mp3',
+		'walk_3.mp3',
+		'walk_2.mp3',
+		'walk_1.mp3',
+		'jump_1.mp3',
+	];
+
+	function preloadAudio(url) {
+		var audio = new Audio();
+		audio.addEventListener('canplaythrough', loadedAudio, false);
+		audio.src = url;
+		audio.load();
+		sfx.push(audio);
+	}
+
+	let loaded = 0;
+	function loadedAudio() {
+		loaded++;
+	}
+
+	for (let i = 0; i < audioFiles.length; i++) {
+		preloadAudio(`./sfx/${audioFiles[i]}`);
+	}
+
+	const loader = setInterval(() => {
+		if (loaded === audioFiles.length) {
+			clearInterval(loader);
+			player.addSFX(sfx);
+		}
+	}, 1000 / 30);
+}
+
 /* events */
 gme.keyDown = function(key) {
 	switch (key) {
@@ -184,6 +232,12 @@ gme.keyDown = function(key) {
 		case 'up':
 		case 'x':
 		case 'space':
+			if (gme.scenes.currentName === 'splash') return startGame(true);
+			player.inputKey('jump', true);
+
+			break;
+		case 'z':
+			if (gme.scenes.currentName === 'splash') return startGame(false);
 			player.inputKey('jump', true);
 			break;
 		case 'd':
@@ -194,19 +248,24 @@ gme.keyDown = function(key) {
 		// case 'down':
 		// 	player.inputKey('down', true);
 		// 	break;
-		case 'g':
-			// if (!userStarted) userStart();
-		break;
-		case 'h':
-			// if (!userStarted) loadSound();
-		break;
 		case 't':
 			physics.display = !physics.display;
 			console.log('show physies', physics.display);
 		break;
 
-		case 'o':
-			if (!doodoo) bgMusic();
+		case 'm':
+				console.log('toggle m');
+				if (!player.sfx) sfxSetup();
+				if (player.hasSFX) player.hasSFX = false;
+				else player.hasSFX = true;
+		break;
+
+		case 'b':
+				console.log('toggle b');
+				if (!doodoo) return bgMusic();
+				console.log(doodoo.isPlaying);
+				if (doodoo.isPlaying) doodoo.stop();
+				else doodoo.play();
 		break;
 
 	}
