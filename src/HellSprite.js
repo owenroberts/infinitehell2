@@ -4,7 +4,7 @@ class HellSprite extends Sprite {
 	}
 
 	display(view) {
-
+		// if (this.debug) console.log(this.isOnScreen(view))
 		if (this.isOnScreen(view)) {
 			if (this.debug) this.drawDebug();
 			if (this.animation) {

@@ -10,10 +10,16 @@ class Physics {
 		};
 	}
 
-	addBody(x, y, size) {
-		const tile = new HellSprite(x, y, gme.anims.sprites.test_tile);
+	addBody(x, y, size, animationFrame) {
+		const tile = new HellTextureSprite({
+			x: x, 
+			y: y, 
+			animation: gme.anims.sprites.platforms,
+			stateIndex: animationFrame
+		});
 		tile.center = true;
-		gme.scenes.game.addSprite(tile);
+		gme.scenes.game.addToDisplay(tile);
+		
 		tile.body = Bodies.rectangle(
 			Math.round(x), 
 			Math.round(y), 

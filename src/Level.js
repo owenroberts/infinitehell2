@@ -3,11 +3,18 @@ class Level {
 		this.indexes = indexes; // [x, y]
 		this.x = x;
 		this.y = y;
+		
+		// this.animationFrame = Cool.randomInt(gme.anims.sprites.platforms.endFrame);
+		let endFrame = gme.anims.sprites.platforms.endFrame;
+		this.animationFrame = Math.min(endFrame, Math.max(0, 
+			Math.floor(endFrame / 2) + indexes[1]));
+
 		this.tiles = [];
 		this.tilesAdded = false;
 		this.tilePositions = [];
 		this.tileCount = 0;
 		this.levelType = levelType;
+
 
 		if (y > gme.lowestLevel) gme.lowestLevel = y;
 
@@ -21,6 +28,8 @@ class Level {
 				this.indexes[1] === gme.currentLevel[1]) {
 				return;
 			}
+
+			let delta = gme.currentLevel[1] - this.indexes[1];
 
 			camera.lerpToPlayer();
 
@@ -38,7 +47,23 @@ class Level {
 				}
 			}
 
-			this.addLevels(3);
+			this.addLevels(4);
+
+			if (doodoo) {
+				doodoo.moveTonic(delta * 2);
+				doodoo.moveBPM(delta * 2);
+			}
+			player.jumpSpeed -= delta * 2;
+
+			if (this.indexes[1] > 0) {
+				gme.anims.sprites.platforms.overrideProperty('wiggleRange', Math.abs(this.indexes[1])/4);
+				gme.anims.sprites.platforms.overrideProperty('wiggleSpeed', Math.abs(this.indexes[1])/8);
+				gme.anims.sprites.platforms.overrideProperty('wiggleSegments', true);
+			} else {
+				gme.anims.sprites.platforms.cancelOverride();
+			}
+
+
 		});
 
 		// console.log(indexes, ringNumber);
@@ -46,18 +71,18 @@ class Level {
 
 		if (ringNumber >= 2) this.addPlatforms(levelType);
 		if (ringNumber >= 1) this.addLevels(ringNumber);
-
 	}
 
 	updateTiles() {
 		if (this.tileCount === this.tilePositions.length) return;
 		let [x, y] = this.tilePositions[this.tileCount];
-		this.tiles.push(physics.addBody(x, y, Constants.TILE_SIZE));
+		this.tiles.push(physics.addBody(x, y, Constants.TILE_SIZE, this.animationFrame));
 		this.tileCount++;
 	}
 
 	addPlatforms(parts) {
 		if (this.tilesAdded) return;
+		if (!player.landed && this.indexes[0] == 0 && this.indexes[1] < 0) return; 
 		this.tilesAdded = true;
 		// parts string w 9 01 -- probably cooler way to do this
 		let { x, y } = this;
@@ -124,6 +149,5 @@ class Level {
 		}
 		Composite.remove(physics.engine.world, this.trigger);
 		gme.levels.splice(gme.levels.indexOf(this), 1);
-		// console.log(gme.levels);
 	}
 }

@@ -46,28 +46,33 @@ gme.levels = [];
 let scenery = new Scenery();
 let camera = new Camera();
 let physics = new Physics();
+let doodoo;
 
 gme.start = function() {
 	document.getElementById('splash').remove();
 
-	player = new Player(256 + 128, -512, gme.anims.sprites.player);
-	player.landed = false;
+	player = new Player(Constants.PLAYER_START_X, Constants.PLAYER_START_Y, gme.anims.sprites.player);
 	gme.scenes.game.addSprite(player);
 
-	camera.focus = [-256, gme.view.halfHeight];
+	let title = new HellSprite(600, -130, gme.anims.sprites.title);
+	gme.scenes.game.addToDisplay(title);
+
+	camera.focus = [Constants.CAMERA_START_X, gme.view.halfHeight];
 
 	gme.levels = [];
 	gme.currentLevel = [0, 0];
 	gme.lowestLevel = 0;
-	firstLevel = new Level([0,0], 0, 0, 3, '000000111');
+	firstLevel = new Level([0,0], 0, 0, 4, '000000111');
 	
 	scenery.setup();
 	gme.scenes.current = 'game';
 	Runner.run(physics.engine); // start physics
 };
+
 // update by matter ...
 
 gme.draw = function() {
+
 
 	for (let i = 0; i < gme.levels.length; i++) {
 		gme.levels[i].updateTiles();
@@ -93,22 +98,59 @@ gme.draw = function() {
 };
 
 gme.reset = function() {
-	for (let i = 0; i < gme.levels.length; i++) {
+	for (let i = gme.levels.length - 1; i >= 0; i--) {
 		gme.levels[i].remove();
 	}
+
 	gme.levels = [];
 	gme.currentLevel = [0, 0];
 	gme.lowestLevel = 0;
 	firstLevel = new Level([0,0], 0, 0, 3, '000000111');
+	// firstLevel.addPlatforms('000000111');
 
-	Body.setPosition(player.body, { x : 256 + 128, y : -512 });
-	Body.setVelocity(player.body, { x : 0, y : 0 });
-	player.landed = false;
+	player.reset();
 
 	camera.center = [0, 0];
-	camera.focus = [-256, gme.view.halfHeight];
+	camera.focus = [Constants.CAMERA_START_X, gme.view.halfHeight];
 	camera.state = 'view';
+
+	if (doodoo) {
+		doodoo.setTonic('F#4');
+		doodoo.setBPM(120);
+	}
+	gme.anims.sprites.platforms.cancelOverride();
 };
+
+function bgMusic() {
+	const { Doodoo } = doodooLib; // import lib
+	const parts =  [
+		[
+			['F#5', '2n'],
+			[null, '4n'],
+			[null, '8n'],
+			['C#5', '8n'],
+			['D5', '8n'],
+			['E5', '8n'],
+			['F#5', '8n'],
+			['D5', '8n'],
+			['E5', '8n'],
+			['F#5', '8n'],
+			['A5', '8n'],
+			['E5', '8n'],
+			['F#5', '8n'],
+			['G5', '8n'],
+			['B5', '8n'],
+		]
+	];
+	doodoo = new Doodoo({
+		tonic: 'F#4',
+		scale: [-4, -2, 0, 1, 3, 5, 7],
+		parts: parts,
+		startDuration: '8n',
+		samples: '../samples/choir/' // -- add samples for sampler
+	});
+	doodoo.setBPM(120);
+}
 
 /* events */
 gme.keyDown = function(key) {
@@ -140,6 +182,10 @@ gme.keyDown = function(key) {
 		case 't':
 			physics.display = !physics.display;
 			console.log('show physies', physics.display);
+		break;
+
+		case 'o':
+			if (!doodoo) bgMusic();
 		break;
 
 	}

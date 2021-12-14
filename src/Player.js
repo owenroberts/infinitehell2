@@ -7,7 +7,7 @@ class Player extends HellSprite {
 
 		this.debug = debug || false;
 		this.speed = [1, 1];
-		this.jumpSpeed = -24;
+		this.jumpSpeed = Constants.PLAYER_JUMP_SPEED;
 		this.jumpJustPressed = false;
 		this.isJumping = false;
 		this.jumpCount = 0;
@@ -21,6 +21,7 @@ class Player extends HellSprite {
 
 		this.hasSFX = false;
 
+		this.landed = false;
 		this.setupPhysics();
 
 		this.halfWidth = this.width / 2;
@@ -38,7 +39,7 @@ class Player extends HellSprite {
 		this.sensors = {};
 
 		let [x, y] = this.position;
-		let [w, h] = [64, 64];
+		let [w, h] = [64, 76];
 		let s = 10; // sensor size
 
 		this.sensors.down = Bodies.rectangle(x, y + h / 2, w / 2, s, {isSensor : true});
@@ -103,7 +104,18 @@ class Player extends HellSprite {
 	}
 
 	inputKey(key, state) {
+		if (!this.landed) return;
 		this.input[key] = state;
+	}
+
+	reset() {
+		player.landed = false;
+		this.jumpSpeed = Constants.PLAYER_JUMP_SPEED;
+		this.input.right = false;
+		this.input.left = false;
+		this.input.jump = false;
+		Body.setPosition(this.body, { x : Constants.PLAYER_START_X, y : Constants.PLAYER_START_Y });
+		Body.setVelocity(this.body, { x : 0, y : 0 });
 	}
 
 	translatePosition() {
@@ -111,11 +123,11 @@ class Player extends HellSprite {
 	}
 
 	physicsUpdate() {
-
 		
 		if (this.blocked.down && this.isJumping) {
 			this.isJumping = false;
 			this.jumpCount = 0;
+			this.animation.cancelOverride();
 		}
 
 		if (this.input.jump) {
@@ -124,7 +136,10 @@ class Player extends HellSprite {
 					Body.setVelocity(this.body, {x : this.body.velocity.x, y : -12});
 					this.isJumping = true;
 					this.jumpCount++;
-					
+					this.animation.overrideProperty('wiggleSpeed', 5);
+					this.animation.overrideProperty('wiggleSpeed', 2);
+					this.animation.overrideProperty('wiggleSegments', true);
+
 				}
 			}
 			this.jumpJustPressed = true;

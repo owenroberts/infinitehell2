@@ -70,7 +70,7 @@ function linesCopy() {
 
 function watchTask(){
 	watch(['./src/*.js', './css/*'], series(jsTask));
-	watch(doodoo.files, series(doodoo.exportTask, doodooCopy));
+	watch('./doodoo/src/*.js', series(doodoo.exportTask, doodooCopy));
 	watch(['./lines/classes/*.js', './lines/game/classes/*.js'], series(lines.exportTask, linesCopy));
 }
 

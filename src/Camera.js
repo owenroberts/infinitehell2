@@ -1,7 +1,7 @@
 class Camera {
 	constructor() {
 		this.view = [0, 0, gme.width, gme.height];
-		this.zoom = 1;
+		this.zoom = 1.5;
 		this.center = [0, 0];
 		this.focus = [0, 0];
 		this.state = 'view'; // lerp, player, view
