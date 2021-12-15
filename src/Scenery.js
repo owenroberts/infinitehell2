@@ -6,14 +6,17 @@ class Scenery {
 
 	setupBG() {
 		let column = 64;
-		for (let x = 0; x < gme.view.width; x += column) {
-			let cloud = new HellTextureSprite({
-				x: x + Cool.randomInt(-column, column), 
-				y: Cool.randomInt(-column, 0), 
-				animation: gme.anims.sprites.clouds,
-				stateIndex: Cool.randomInt(0, gme.anims.sprites.clouds.endFrame)
-			});
-			gme.scenes.bg.addToDisplay(cloud);
+		for (let x = -32; x < gme.view.width; x += column) {
+
+			if (Cool.chance(0.66)) {
+				let cloud = new HellTextureSprite({
+					x: x + Cool.randomInt(-column, column), 
+					y: Cool.randomInt(-column, 0), 
+					animation: gme.anims.sprites.clouds,
+					stateIndex: Cool.randomInt(0, gme.anims.sprites.clouds.endFrame)
+				});
+				gme.scenes.bg.addToDisplay(cloud);
+			}
 			
 			let fire = new HellTextureSprite({
 				x: x + Cool.randomInt(-column, column), 

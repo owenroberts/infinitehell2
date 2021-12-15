@@ -63,10 +63,10 @@ gme.start = function() {
 	camera.center = [-320, Math.round(gme.height / 3)];
 
 	gme.levels = [];
-	gme.currentLevel = [0, 0];
+	gme.currentLevel = [Constants.CAMERA_START_X, 0];
 	gme.lowestLevel = 0;
 
-	player = new Player(Constants.PLAYER_START_X, Constants.PLAYER_START_Y, gme.anims.sprites.player, true);
+	player = new Player(Constants.PLAYER_START_X, Constants.PLAYER_START_Y, gme.anims.sprites.player);
 	gme.scenes.game.addSprite(player);
 	
 	scenery.setupBG();
@@ -83,7 +83,7 @@ function startGame(withSound) {
 	}
 	gme.scenes.current = 'game';
 	Runner.run(physics.engine); // start physics
-	firstLevel = new Level([0,0], 0, 0, 4, '000000111');
+	firstLevel = new Level([0,0], 0, 0, 5, '000000111');
 }
 
 gme.draw = function() {
@@ -96,10 +96,10 @@ gme.draw = function() {
 	gme.ctx.clearRect(0, 0, gme.view.width, gme.view.height);
 
 	// "parrallaxx bg"
-	// gme.ctx.save();
-	// gme.ctx.translate(player.x / 50, player.y / 50);
-	// gme.scenes.bg.display();
-	// gme.ctx.restore();
+	gme.ctx.save();
+	gme.ctx.translate(player.x / 50, player.y / 50);
+	gme.scenes.bg.display([0, 0, gme.width, gme.height]);
+	gme.ctx.restore();
 	
 	gme.ctx.save();
 	camera.update();
@@ -107,10 +107,10 @@ gme.draw = function() {
 	gme.scenes.current.display(camera.view);
 	gme.ctx.restore();
 
-	// gme.ctx.save();
-	// gme.ctx.translate(-player.x / 50, -player.y / 20);
-	// gme.scenes.fg.display();
-	// gme.ctx.restore();
+	gme.ctx.save();
+	gme.ctx.translate(-player.x / 50, -player.y / 20);
+	gme.scenes.fg.display([0, 0, gme.width, gme.height]);
+	gme.ctx.restore();
 
 
 	if (player.y > gme.lowestLevel + gme.view.height) {
@@ -135,8 +135,8 @@ gme.reset = function() {
 	scenery.setupBG();
 	scenery.setupFG();
 
-	camera.center = [0, 0];
-	camera.focus = [Constants.CAMERA_START_X, gme.view.halfHeight];
+	camera.focus = [0, 0];
+	camera.center = [Constants.CAMERA_START_X, Math.round(gme.height / 3)];
 	camera.state = 'view';
 
 	if (doodoo) {

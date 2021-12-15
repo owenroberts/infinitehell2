@@ -47,7 +47,7 @@ class Level {
 				}
 			}
 
-			this.addLevels(4);
+			this.addLevels(5);
 
 			if (doodoo) {
 				doodoo.moveTonic(delta * 2);

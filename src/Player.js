@@ -190,11 +190,11 @@ class Player extends HellSprite {
 	}
 
 	playSFX(velocity, isOnGround) {
-		if (Math.abs(velocity.x) > 0 && this.walkCount === 0 && isOnGround) {
+		if (Math.abs(velocity.x) > 1 && this.walkCount === 0 && isOnGround) {
 			let index = Cool.randomInt(this.sfx.walk.length - 1);
 			this.sfx.walk[index].play();
 			this.walkCount++;
-		} else if (velocity.x === 0 || this.walkCount === this.walkInterval || !isOnGround) {
+		} else if (velocity.x < 1 || this.walkCount === this.walkInterval || !isOnGround) {
 			this.walkCount = 0;
 		} else {
 			this.walkCount++;
