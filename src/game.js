@@ -23,7 +23,7 @@ const gme = new Game({
 	// stats: true,
 	suspend: true,
 	events: isMobile ? ['touch'] : ['keyboard', 'mouse'],
-	scenes: ['game', 'splash', 'loading', 'scenery'],
+	scenes: ['game', 'splash', 'loading', 'bg', 'fg'],
 	bounds: {
 		left: -1024,
 		top: 1024,
@@ -51,8 +51,7 @@ let doodoo;
 gme.start = function() {
 	document.getElementById('splash').remove();
 
-	player = new Player(Constants.PLAYER_START_X, Constants.PLAYER_START_Y, gme.anims.sprites.player);
-	gme.scenes.game.addSprite(player);
+	
 
 	let instructions = new HellSprite(600, -130, gme.anims.sprites.instructions);
 	gme.scenes.game.addToDisplay(instructions);
@@ -60,14 +59,18 @@ gme.start = function() {
 	let splash = new HellSprite(350, -200, gme.anims.sprites.splash);
 	gme.scenes.splash.addToDisplay(splash);
 
-	camera.focus = [Constants.CAMERA_START_X, gme.view.halfHeight];
+	camera.focus = [0, 0];
+	camera.center = [-320, Math.round(gme.height / 3)];
 
 	gme.levels = [];
 	gme.currentLevel = [0, 0];
 	gme.lowestLevel = 0;
-	firstLevel = new Level([0,0], 0, 0, 4, '000000111');
+
+	player = new Player(Constants.PLAYER_START_X, Constants.PLAYER_START_Y, gme.anims.sprites.player, true);
+	gme.scenes.game.addSprite(player);
 	
-	scenery.setup();
+	scenery.setupBG();
+	scenery.setupFG();
 	gme.scenes.current = 'splash';
 };
 
@@ -80,10 +83,10 @@ function startGame(withSound) {
 	}
 	gme.scenes.current = 'game';
 	Runner.run(physics.engine); // start physics
+	firstLevel = new Level([0,0], 0, 0, 4, '000000111');
 }
 
 gme.draw = function() {
-
 
 	for (let i = 0; i < gme.levels.length; i++) {
 		gme.levels[i].updateTiles();
@@ -93,15 +96,22 @@ gme.draw = function() {
 	gme.ctx.clearRect(0, 0, gme.view.width, gme.view.height);
 
 	// "parrallaxx bg"
-	gme.ctx.save();
-	gme.ctx.translate(player.x / 50, player.y / 50);
-	gme.scenes.scenery.display();
-	gme.ctx.restore();
+	// gme.ctx.save();
+	// gme.ctx.translate(player.x / 50, player.y / 50);
+	// gme.scenes.bg.display();
+	// gme.ctx.restore();
 	
+	gme.ctx.save();
 	camera.update();
 	physics.render();
 	gme.scenes.current.display(camera.view);
 	gme.ctx.restore();
+
+	// gme.ctx.save();
+	// gme.ctx.translate(-player.x / 50, -player.y / 20);
+	// gme.scenes.fg.display();
+	// gme.ctx.restore();
+
 
 	if (player.y > gme.lowestLevel + gme.view.height) {
 		gme.reset();		
@@ -120,6 +130,10 @@ gme.reset = function() {
 	// firstLevel.addPlatforms('000000111');
 
 	player.reset();
+
+	scenery.reset();
+	scenery.setupBG();
+	scenery.setupFG();
 
 	camera.center = [0, 0];
 	camera.focus = [Constants.CAMERA_START_X, gme.view.halfHeight];
@@ -254,16 +268,13 @@ gme.keyDown = function(key) {
 		break;
 
 		case 'm':
-				console.log('toggle m');
-				if (!player.sfx) sfxSetup();
+				if (!player.sfx) return sfxSetup();
 				if (player.hasSFX) player.hasSFX = false;
 				else player.hasSFX = true;
 		break;
 
 		case 'b':
-				console.log('toggle b');
 				if (!doodoo) return bgMusic();
-				console.log(doodoo.isPlaying);
 				if (doodoo.isPlaying) doodoo.stop();
 				else doodoo.play();
 		break;
@@ -293,3 +304,8 @@ gme.keyUp = function(key) {
 			break;
 	}
 };
+
+// itch fix
+window.addEventListener("keydown", function(ev) {
+	if ([37, 38, 39, 40].includes(ev.which)) ev.preventDefault();
+}, false);

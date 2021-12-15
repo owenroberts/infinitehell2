@@ -17,9 +17,12 @@ class HellSprite extends Sprite {
 
 	isOnScreen(view) {
 		if (this.debug) {
+			// console.log(this.x, this.width, this.x + this.width, view[0], this.x + this.width > view[0]);
+			// console.log(this.x, this.position.x);
 			// console.log(view); // -100, -0, 1134, 976
-			// console.log(this.x, this.y, this.width, this.height); // 40 44.5 120 115
+			// console.log(this.x, this.y, this.x + this.width, this.height); // 40 44.5 120 115
 		}
+		
 		return (
 			this.x + this.width > view[0] &&
 			this.y + this.height > view[1] &&

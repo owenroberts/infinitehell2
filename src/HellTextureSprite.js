@@ -2,7 +2,7 @@
 	hell texture
 */
 
-class HellTextureSprite extends Sprite {
+class HellTextureSprite extends HellSprite {
 	constructor(params, debug) {
 		super(params.x, params.y, params.animation, debug);
 		this.center = false;

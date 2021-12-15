@@ -2,7 +2,7 @@ class Camera {
 	constructor() {
 		this.view = [0, 0, gme.width, gme.height];
 		this.zoom = 1.5;
-		this.center = [0, 0];
+		this.center = [0, 0];	
 		this.focus = [0, 0];
 		this.state = 'view'; // lerp, player, view
 		this.lerp = {
@@ -12,7 +12,6 @@ class Camera {
 			threshold: 0.05, // how close to get to player position 
 		};
 		this.waitToSet = false;
-
 	}
 
 	lerpToPlayer() {

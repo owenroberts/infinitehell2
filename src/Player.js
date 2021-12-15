@@ -27,7 +27,6 @@ class Player extends HellSprite {
 		this.halfWidth = this.width / 2;
 		this.halfHeight = this.height / 2;
 
-		console.log('player sprite', this)
 	}
 
 	setupPhysics() {
@@ -59,7 +58,6 @@ class Player extends HellSprite {
 		this.body = Body.create(params);
 		this.body.isPlayer = true;
 		Composite.add(physics.engine.world, this.body);
-		console.log(this.body);
 
 		Events.on(physics.engine, 'afterUpdate', this.physicsUpdate.bind(this));
 		Events.on(physics.engine, 'beforeUpdate', event => {

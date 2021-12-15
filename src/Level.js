@@ -7,7 +7,7 @@ class Level {
 		// this.animationFrame = Cool.randomInt(gme.anims.sprites.platforms.endFrame);
 		let endFrame = gme.anims.sprites.platforms.endFrame;
 		this.animationFrame = Math.min(endFrame, Math.max(0, 
-			Math.floor(endFrame / 2) + indexes[1]));
+			Math.floor(endFrame / 2) + 1 + indexes[1]));
 
 		this.tiles = [];
 		this.tilesAdded = false;

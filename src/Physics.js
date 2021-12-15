@@ -12,8 +12,8 @@ class Physics {
 
 	addBody(x, y, size, animationFrame) {
 		const tile = new HellTextureSprite({
-			x: x, 
-			y: y, 
+			x: x + Cool.randomInt(-Constants.TILE_SIZE / 4, Constants.TILE_SIZE / 4), 
+			y: y + Cool.randomInt(Constants.TILE_SIZE / 4), 
 			animation: gme.anims.sprites.platforms,
 			stateIndex: animationFrame
 		});
