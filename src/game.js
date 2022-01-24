@@ -4,7 +4,6 @@ function loadingAnimation() {
 	let t = '~' + title.textContent + '~';
 	title.textContent = t;
 }
-let loadingInterval = setInterval(loadingAnimation, 1000 / 12);
 
 const isMobile = Cool.mobilecheck();
 if (isMobile) document.body.classList.add('mobile');
@@ -32,12 +31,30 @@ const gme = new Game({
 	}
 });
 
-gme.load({ 
-	// scenery: 'data/scenery.json',
-	// textures: 'data/textures.json',
-	sprites: 'data/sprites.json',
-	// ui: 'data/ui.json',
-}, false);
+// iframe fix -- fucking itch bullshit
+let loadingInterval;
+if (window.parent !== window) {
+	console.log('iframe detected');
+
+	// check focus
+	// const iFrameIsFocused = document.getElementsByTagName('iframe').length > 0;
+	// console.log(document.getElementsByTagName('iframe').length, document.visibilityState, iFrameIsFocused, document.hasFocus())
+
+	title.style.display = 'none';
+	const startButton = document.createElement('button');
+	startButton.textContent = 'start infinite hell 2';
+	document.getElementById('splash').appendChild(startButton);
+	startButton.onclick = function() {
+		startButton.remove();
+		title.style.display = 'block';
+		loadingInterval = setInterval(loadingAnimation, 1000 / 12);
+		gme.load({ sprites: 'data/sprites.json' }, false);
+	}
+} else {
+	loadingInterval = setInterval(loadingAnimation, 1000 / 12);
+	gme.load({ sprites: 'data/sprites.json' }, false);
+}
+
 
 const { Engine, Bodies, Body, Composite, Runner, Events } = Matter;
 let player;
@@ -50,8 +67,6 @@ let doodoo;
 
 gme.start = function() {
 	document.getElementById('splash').remove();
-
-	
 
 	let instructions = new HellSprite(600, -130, gme.anims.sprites.instructions);
 	gme.scenes.game.addToDisplay(instructions);
@@ -193,7 +208,7 @@ function bgMusic() {
 		scale: [-4, -2, 0, 1, 3, 5, 7],
 		parts: parts,
 		startDuration: '8n',
-		samples: '../samples/choir/' // -- add samples for sampler
+		samples: './samples/choir/' // -- add samples for sampler
 	});
 	doodoo.setBPM(120);
 }
@@ -304,8 +319,3 @@ gme.keyUp = function(key) {
 			break;
 	}
 };
-
-// itch fix
-window.addEventListener("keydown", function(ev) {
-	if ([37, 38, 39, 40].includes(ev.which)) ev.preventDefault();
-}, false);

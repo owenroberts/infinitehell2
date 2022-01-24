@@ -26,7 +26,6 @@ class Player extends HellSprite {
 
 		this.halfWidth = this.width / 2;
 		this.halfHeight = this.height / 2;
-
 	}
 
 	setupPhysics() {
