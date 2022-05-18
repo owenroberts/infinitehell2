@@ -8,6 +8,15 @@ function loadingAnimation() {
 const isMobile = Cool.mobilecheck();
 if (isMobile) document.body.classList.add('mobile');
 
+const perf = [];
+console.groupCollapsed('perf test')
+for (let i = 0; i < 5; i++) {
+	perf.push(Cool.testPerformance());
+}
+console.log('avg', perf.reduce((a, b) => (a + b)) / perf.length);
+console.groupEnd('perf test')
+
+
 /* this is the game part */
 const gme = new Game({
 	dps: 24,
@@ -19,7 +28,7 @@ const gme = new Game({
 	multiColor: true,
 	checkRetina: true,
 	// debug: true,
-	// stats: true,
+	stats: true,
 	suspend: true,
 	events: isMobile ? ['touch'] : ['keyboard', 'mouse'],
 	scenes: ['game', 'splash', 'loading', 'bg', 'fg'],

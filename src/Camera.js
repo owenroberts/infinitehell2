@@ -42,7 +42,7 @@ class Camera {
 			this.lerp.focus[1] += focusLerp[1];
 
 			gme.ctx.translate(Math.floor(this.lerp.focus[0]), Math.floor(this.lerp.focus[1]));
-			gme.ctx.scale(this.zoom, this.zoom);
+			// gme.ctx.scale(this.zoom, this.zoom);
 			gme.ctx.translate(Math.floor(this.lerp.center[0]), Math.floor(this.lerp.center[1]));
 
 			if (Math.abs(lerp[0]) < this.lerp.threshold || Math.abs(lerp[1]) < this.lerp.threshold) {
@@ -58,7 +58,7 @@ class Camera {
 		} else if (this.state === 'player') {
 
 			gme.ctx.translate(gme.halfWidth, gme.halfHeight);
-			gme.ctx.scale(this.zoom, this.zoom);
+			// gme.ctx.scale(this.zoom, this.zoom);
 			gme.ctx.translate(-player.x - player.halfWidth, -player.y - player.halfHeight);
 
 			this.view[0] = -gme.halfWidth + player.x + player.halfWidth;
@@ -68,7 +68,7 @@ class Camera {
 
 		} else if (this.state === 'view') {
 			gme.ctx.translate(this.focus[0], this.focus[1]);
-			gme.ctx.scale(this.zoom, this.zoom);
+			// gme.ctx.scale(this.zoom, this.zoom);
 			gme.ctx.translate(this.center[0], this.center[1]);
 
 			this.view[0] = -this.focus[0] - this.center[0];
