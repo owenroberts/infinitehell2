@@ -8,21 +8,13 @@ function loadingAnimation() {
 const isMobile = Cool.mobilecheck();
 if (isMobile) document.body.classList.add('mobile');
 
-const perf = [];
-console.groupCollapsed('perf test')
-for (let i = 0; i < 5; i++) {
-	perf.push(Cool.testPerformance());
-}
-console.log('avg', perf.reduce((a, b) => (a + b)) / perf.length);
-console.groupEnd('perf test')
-
 
 /* this is the game part */
 const gme = new Game({
 	dps: 24,
 	lineWidth: 1,
 	// zoom: isMobile ? 1 : 1.5,
-	zoom: 1,
+	zoom: 1.5,
 	width: window.innerWidth,
 	height: window.innerHeight,
 	multiColor: true,
