@@ -47,13 +47,14 @@ class Level {
 				}
 			}
 
-			this.addLevels(5);
+			this.addLevels(5); // building levels from 5 rings out to here
 
 			if (doodoo) {
 				doodoo.moveTonic(delta * 2);
 				doodoo.moveBPM(delta * 2);
 			}
-			player.jumpSpeed -= delta * 2;
+			player.jumpSpeed -= delta / 2;
+			// console.log('jump speed', player.jumpSpeed);
 
 			if (this.indexes[1] > 0) {
 				gme.anims.sprites.platforms.overrideProperty('wiggleRange', Math.abs(this.indexes[1])/4);
@@ -62,8 +63,6 @@ class Level {
 			} else {
 				gme.anims.sprites.platforms.cancelOverride();
 			}
-
-
 		});
 
 		// console.log(indexes, ringNumber);

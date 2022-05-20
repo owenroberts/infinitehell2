@@ -18,7 +18,7 @@ class Physics {
 			stateIndex: animationFrame
 		});
 		tile.center = true;
-		gme.scenes.game.addToDisplay(tile);
+		gme.scenes.game.addSprite(tile);
 		
 		tile.body = Bodies.rectangle(
 			Math.round(x), 
@@ -28,12 +28,13 @@ class Physics {
 			{
 				...this.defaultOptions,
 				collisionFilter: {
-					category: 0b0010,
-					mask: 0b0001,
+					category: Constants.PLATFORM_CATEGORY,
+					// mask: 0b0001,
 				},
 				isStatic: true
 			}
 		);
+		tile.body.isPlatform = true;
 		
 		Composite.add(this.engine.world, tile.body);
 		return tile;
@@ -49,8 +50,8 @@ class Physics {
 				isStatic: true, 
 				isSensor: true,
 				collisionFilter: {
-					category: 0b0100,
-					mask: 0b0001,
+					category: Constants.TRIGGER_CATEGORY,
+					// mask: 0b0001,
 				}
 			}
 		);
@@ -61,7 +62,7 @@ class Physics {
 		return body;
 	}
 
-	render() {
+	render(offset) {
 		if (this.display) {
 			let lw = gme.ctx.lineWidth;
 			let ls = gme.ctx.strokeStyle;
@@ -77,11 +78,11 @@ class Physics {
 				for (let k = 0, parts = b.parts.length; k < parts; k++) {
 					const p = b.parts[k];
 
-					gme.ctx.moveTo(p.vertices[0].x, p.vertices[0].y);
+					gme.ctx.moveTo(p.vertices[0].x + offset[0], p.vertices[0].y + offset[1]);
 					for (let j = 1, verts = p.vertices.length; j < verts; j++) {
-						gme.ctx.lineTo(p.vertices[j].x, p.vertices[j].y);
+						gme.ctx.lineTo(p.vertices[j].x + offset[0], p.vertices[j].y + offset[1]);
 					}
-					gme.ctx.lineTo(p.vertices[0].x, p.vertices[0].y);
+					gme.ctx.lineTo(p.vertices[0].x + offset[0], p.vertices[0].y + offset[1]);
 				}
 				gme.ctx.stroke();
 			}

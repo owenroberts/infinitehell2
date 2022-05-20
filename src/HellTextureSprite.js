@@ -4,7 +4,7 @@
 
 class HellTextureSprite extends HellSprite {
 	constructor(params, debug) {
-		super(params.x, params.y, params.animation, debug);
+		super(params, debug);
 		this.center = false;
 		this.stateName = `frame-${params.stateIndex}`;
 		this.animation.createNewState(`frame-${params.stateIndex}`, params.stateIndex, params.stateIndex);

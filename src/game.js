@@ -21,6 +21,8 @@ const gme = new Game({
 	checkRetina: true,
 	// debug: true,
 	stats: true,
+	// testPerformance: true,
+	lowPerformance: true,
 	suspend: true,
 	events: isMobile ? ['touch'] : ['keyboard', 'mouse'],
 	scenes: ['game', 'splash', 'loading', 'bg', 'fg'],
@@ -69,21 +71,24 @@ let doodoo;
 gme.start = function() {
 	document.getElementById('splash').remove();
 
-	let instructions = new HellSprite(600, -130, gme.anims.sprites.instructions);
-	gme.scenes.game.addToDisplay(instructions);
 
-	let splash = new HellSprite(350, -200, gme.anims.sprites.splash);
+	let splash = new HellSprite({ x: 64, y: gme.view.halfHeight - 128, animation: gme.anims.sprites.splash });
+	splash.center = false;
 	gme.scenes.splash.addToDisplay(splash);
 
-	camera.focus = [0, 0];
-	camera.center = [-320, Math.round(gme.height / 3)];
+	let instructions = new HellSprite({ x: gme.view.halfWidth, y: -128, animation: gme.anims.sprites.instructions });
+	gme.scenes.game.addSprite(instructions);
+	// instructions are part of scene
+
+	// camera.focus = [0, 0];
+	// camera.center = [-320, Math.round(gme.height / 3)];
 
 	gme.levels = [];
-	gme.currentLevel = [Constants.CAMERA_START_X, 0];
+	gme.currentLevel = [Constants.PLAYER_START_X, 0];
 	gme.lowestLevel = 0;
 
-	player = new Player(Constants.PLAYER_START_X, Constants.PLAYER_START_Y, gme.anims.sprites.player);
-	gme.scenes.game.addSprite(player);
+	player = new Player(Constants.PLAYER_START_X, -256, gme.anims.sprites.player);
+	gme.scenes.game.addToDisplay(player);
 	
 	scenery.setupBG();
 	scenery.setupFG();
@@ -91,7 +96,6 @@ gme.start = function() {
 };
 
 // update by matter ...
-
 function startGame(withSound) {
 	if (withSound) {
 		bgMusic();
@@ -99,7 +103,8 @@ function startGame(withSound) {
 	}
 	gme.scenes.current = 'game';
 	Runner.run(physics.engine); // start physics
-	firstLevel = new Level([0,0], 0, 0, 5, '000000111');
+	physics.display = true;
+	firstLevel = new Level([0, 0], 0, 0, 5, '000000111');
 }
 
 gme.draw = function() {
@@ -108,28 +113,23 @@ gme.draw = function() {
 		gme.levels[i].updateTiles();
 	}
 
-	gme.ctx.save();
 	gme.ctx.clearRect(0, 0, gme.view.width, gme.view.height);
 
 	// "parrallaxx bg"
-	gme.ctx.save();
-	gme.ctx.translate(player.x / 50, player.y / 50);
+	// gme.ctx.translate(player.x / 50, player.y / 50);
 	gme.scenes.bg.display([0, 0, gme.width, gme.height]);
-	gme.ctx.restore();
 	
-	gme.ctx.save();
-	camera.update();
-	physics.render();
-	gme.scenes.current.display(camera.view);
-	gme.ctx.restore();
 
-	gme.ctx.save();
-	gme.ctx.translate(-player.x / 50, -player.y / 20);
+
+	const offset = [gme.view.halfWidth - player.mapPosition[0], gme.view.halfHeight - player.mapPosition[1]];
+	gme.scenes.current.update(offset);
+	gme.scenes.current.display();
+	physics.render(offset);
+
+	// gme.ctx.translate(-player.x / 50, -player.y / 20);
 	gme.scenes.fg.display([0, 0, gme.width, gme.height]);
-	gme.ctx.restore();
 
-
-	if (player.y > gme.lowestLevel + gme.view.height) {
+	if (player.mapPosition[1] > gme.lowestLevel + gme.view.height) {
 		gme.reset();		
 	}
 };
@@ -151,9 +151,9 @@ gme.reset = function() {
 	scenery.setupBG();
 	scenery.setupFG();
 
-	camera.focus = [0, 0];
-	camera.center = [Constants.CAMERA_START_X, Math.round(gme.height / 3)];
-	camera.state = 'view';
+	// camera.focus = [0, 0];
+	// camera.center = [Constants.CAMERA_START_X, Math.round(gme.height / 3)];
+	// camera.state = 'view';
 
 	if (doodoo) {
 		doodoo.setTonic('F#4');
