@@ -15,7 +15,7 @@ class Scenery {
 					animation: gme.anims.sprites.clouds,
 					stateIndex: Cool.randomInt(0, gme.anims.sprites.clouds.endFrame)
 				});
-				gme.scenes.bg.addToDisplay(cloud);
+				gme.scenes.bg.addSprite(cloud);
 			}
 			
 			let fire = new HellTextureSprite({
@@ -24,7 +24,7 @@ class Scenery {
 				animation: gme.anims.sprites.fire,
 				stateIndex: Cool.randomInt(0, gme.anims.sprites.fire.endFrame)
 			});
-			gme.scenes.bg.addToDisplay(fire);
+			gme.scenes.bg.addSprite(fire);
 
 			if (Cool.chance(0.33)) {
 				let land = new HellTextureSprite({
@@ -33,7 +33,7 @@ class Scenery {
 					animation: gme.anims.sprites.land,
 					stateIndex: Cool.randomInt(0, gme.anims.sprites.land.endFrame)
 				});
-				gme.scenes.bg.addToDisplay(land);
+				gme.scenes.bg.addSprite(land);
 			}
 		}
 	}
@@ -49,7 +49,7 @@ class Scenery {
 					animation: gme.anims.sprites.foregrounds,
 					stateIndex: index,
 				});
-				gme.scenes.fg.addToDisplay(fg);
+				gme.scenes.fg.addSprite(fg);
 			}
 		}
 	}

@@ -72,7 +72,14 @@ class Player extends HellSprite {
 					// console.log(pair.bodyA.isTrigger, pair.bodyB.isTrigger)
 					this.blocked.down = true;
 					if (!player.landed) player.landed = true;
-				} 
+				}
+
+				if (pair.bodyA.isPlatform || pair.bodyB.isPlatform) {
+					console.log(
+						pair.bodyA.isPlatform, pair.bodyB.parent.isPlayer,
+						pair.bodyB.isPlatform, pair.bodyA.parent.isPlayer,
+					)
+				}
 			}
 		});
 
@@ -91,44 +98,7 @@ class Player extends HellSprite {
 					pair.bodyB.callback();
 					continue;
 				}
-
-				if (pair.bodyA.isPlatform && pair.bodyB.parent.isPlayer) {
-					if (!this.plats.includes(pair.bodyA.id)) {
-						this.plats.push(pair.bodyA.id);
-					}
-					continue;
-				}
-
-				if (pair.bodyB.isPlatform && pair.bodyA.parent.isPlayer) {
-					if (!this.plats.includes(pair.bodyB.id)) {
-						this.plats.push(pair.bodyB.id);
-					}
-					continue;
-				}
 			}
-		});
-
-		Events.on(physics.engine, 'collisionEnd', event => {
-			if (!player.landed) return;
-			let pairs = event.pairs;
-
-			for (let i = 0, p = pairs.length; i < p; i++) {
-				let pair = pairs[i];
-				// console.log('pairs', pair.bodyA.id, pair.bodyB.id)
-				let indexA = this.plats.indexOf(pair.bodyA.id);
-				// console.log('A', indexA)
-				if (indexA >= 0) {
-					this.plats.splice(indexA, 1);
-					continue;
-				}
-				let indexB = this.plats.indexOf(pair.bodyB.id);
-				// console.log('B', indexB)
-				if (indexB >= 0) {
-					this.plats.splice(indexB, 1);
-				}
-			}
-
-			console.log('end', this.plats);
 		});
 	}
 

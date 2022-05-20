@@ -8,7 +8,6 @@ function loadingAnimation() {
 const isMobile = Cool.mobilecheck();
 if (isMobile) document.body.classList.add('mobile');
 
-
 /* this is the game part */
 const gme = new Game({
 	dps: 24,
@@ -39,10 +38,6 @@ let loadingInterval;
 if (window.parent !== window) {
 	console.log('iframe detected');
 
-	// check focus
-	// const iFrameIsFocused = document.getElementsByTagName('iframe').length > 0;
-	// console.log(document.getElementsByTagName('iframe').length, document.visibilityState, iFrameIsFocused, document.hasFocus())
-
 	title.style.display = 'none';
 	const startButton = document.createElement('button');
 	startButton.textContent = 'start infinite hell 2';
@@ -64,24 +59,27 @@ let player;
 let firstLevel;
 gme.levels = [];
 let scenery = new Scenery();
-let camera = new Camera();
 let physics = new Physics();
 let doodoo;
 
 gme.start = function() {
 	document.getElementById('splash').remove();
 
-
-	let splash = new HellSprite({ x: 64, y: gme.view.halfHeight - 128, animation: gme.anims.sprites.splash });
+	let splash = new HellSprite({ 
+		x: 64, 
+		y: gme.view.halfHeight - 128, 
+		animation: gme.anims.sprites.splash
+	});
 	splash.center = false;
 	gme.scenes.splash.addToDisplay(splash);
 
-	let instructions = new HellSprite({ x: gme.view.halfWidth, y: -128, animation: gme.anims.sprites.instructions });
-	gme.scenes.game.addSprite(instructions);
 	// instructions are part of scene
-
-	// camera.focus = [0, 0];
-	// camera.center = [-320, Math.round(gme.height / 3)];
+	let instructions = new HellSprite({ 
+		x: gme.view.halfWidth, 
+		y: -128, 
+		animation: gme.anims.sprites.instructions 
+	});
+	gme.scenes.game.addSprite(instructions);
 
 	gme.levels = [];
 	gme.currentLevel = [Constants.PLAYER_START_X, 0];
@@ -114,19 +112,20 @@ gme.draw = function() {
 	}
 
 	gme.ctx.clearRect(0, 0, gme.view.width, gme.view.height);
+	const offset = [
+		gme.view.halfWidth - player.mapPosition[0], 
+		gme.view.halfHeight - player.mapPosition[1]
+	];
 
 	// "parrallaxx bg"
-	// gme.ctx.translate(player.x / 50, player.y / 50);
+	gme.scenes.bg.update([offset[0]/50, offset[1]/50]);
 	gme.scenes.bg.display([0, 0, gme.width, gme.height]);
 	
-
-
-	const offset = [gme.view.halfWidth - player.mapPosition[0], gme.view.halfHeight - player.mapPosition[1]];
 	gme.scenes.current.update(offset);
 	gme.scenes.current.display();
 	physics.render(offset);
 
-	// gme.ctx.translate(-player.x / 50, -player.y / 20);
+	gme.scenes.fg.update([-offset[0]/50, -offset[1]/50]);
 	gme.scenes.fg.display([0, 0, gme.width, gme.height]);
 
 	if (player.mapPosition[1] > gme.lowestLevel + gme.view.height) {
@@ -150,10 +149,6 @@ gme.reset = function() {
 	scenery.reset();
 	scenery.setupBG();
 	scenery.setupFG();
-
-	// camera.focus = [0, 0];
-	// camera.center = [Constants.CAMERA_START_X, Math.round(gme.height / 3)];
-	// camera.state = 'view';
 
 	if (doodoo) {
 		doodoo.setTonic('F#4');
@@ -268,7 +263,7 @@ gme.keyDown = function(key) {
 			break;
 		case 'z':
 			if (gme.scenes.currentName === 'splash') return startGame(false);
-			player.inputKey('jump', true);
+			// player.inputKey('jump', true);
 			break;
 		case 'd':
 		case 'right':

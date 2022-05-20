@@ -31,7 +31,7 @@ class Level {
 
 			let delta = gme.currentLevel[1] - this.indexes[1];
 
-			camera.lerpToPlayer();
+			// camera.lerpToPlayer();
 
 			gme.currentLevel[0] = this.indexes[0];
 			gme.currentLevel[1] = this.indexes[1];
@@ -40,14 +40,12 @@ class Level {
 				let indexes = gme.levels[i].indexes;
 				let dx = Math.abs(indexes[0] - this.indexes[0]);
 				let dy = Math.abs(indexes[1] - this.indexes[1]);
-				// console.log(dx, dy);
 				if (dx > 3 || dy > 3) {
-					// console.log('remove', indexes);
 					gme.levels[i].remove();
 				}
 			}
 
-			this.addLevels(5); // building levels from 5 rings out to here
+			this.addLevels(7); // building levels from 5 rings out to here
 
 			if (doodoo) {
 				doodoo.moveTonic(delta * 2);
