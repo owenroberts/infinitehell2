@@ -1,6 +1,6 @@
-class HellSprite extends Sprite {
-	constructor(x, y, animation, callback) {
-		super(x,y, animation, callback);
+class HellSprite extends Entity {
+	constructor(params, callback) {
+		super(params, callback);
 	}
 
 	display(view) {
@@ -15,6 +15,8 @@ class HellSprite extends Sprite {
 		if (this.displayFunc) this.displayFunc();
 	}
 
+	
+	/*
 	isOnScreen(view) {
 		if (this.debug) {
 			// console.log(this.x, this.width, this.x + this.width, view[0], this.x + this.width > view[0]);
@@ -30,4 +32,5 @@ class HellSprite extends Sprite {
 			this.y < view[1] + view[3]
 		);
 	}
+	*/
 }

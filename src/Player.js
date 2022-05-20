@@ -1,6 +1,6 @@
 class Player extends HellSprite {
 	constructor(x, y, animation, debug) {
-		super(x, y);
+		super({ x: GAME.halfWidth, y: GAME.halfHeight });
 		this.mapPosition = [Math.round(x), Math.round(y)];
 		this.center = true; /* need better name */
 		// this.setCollider(25, 6, 78, 90);
@@ -12,6 +12,8 @@ class Player extends HellSprite {
 		this.isJumping = true; // starts out falling
 		this.jumpCount = 0;
 		this.jumpMax = 2;
+		this.pass = false; // pass through bottoms
+		this.plats = []; // track plats to not spit player out
 		
 		this.addAnimation(animation);
 		this.animation.state = 'idle_right';
@@ -23,23 +25,20 @@ class Player extends HellSprite {
 
 		this.landed = false;
 		this.setupPhysics();
-
-		this.halfWidth = this.width / 2;
-		this.halfHeight = this.height / 2;
 	}
 
 	setupPhysics() {
 
-		let parts = []
+		let parts = [];
 
 		this.blocked = { down : null, up : null, right : null, left : null };
 		this.sensors = {};
 
-		let [x, y] = this.position;
+		let [x, y] = this.mapPosition;
 		let [w, h] = [56, 56];
 		let s = 10; // sensor size
 
-		this.sensors.down = Bodies.rectangle(x, y + h / 2, w / 2, s, {isSensor : true});
+		this.sensors.down = Bodies.rectangle(x, y + h / 2, w / 2, s, { isSensor : true });
 		parts.push(this.sensors.down);
 
 		parts.push(Bodies.rectangle(x, y, w, h));
@@ -49,10 +48,9 @@ class Player extends HellSprite {
 			friction: 0.05,
 			parts: parts,
 			collisionFilter: {
-				category: 0b0001,
+				category: Constants.PLAYER_CATEGORY,
+				mask: Constants.PLATFORM_CATEGORY | Constants.TRIGGER_CATEGORY
 			}
-			// isStatic: true,
-
 		};
 		this.body = Body.create(params);
 		this.body.isPlayer = true;
@@ -74,7 +72,7 @@ class Player extends HellSprite {
 					// console.log(pair.bodyA.isTrigger, pair.bodyB.isTrigger)
 					this.blocked.down = true;
 					if (!player.landed) player.landed = true;
-				}
+				} 
 			}
 		});
 
@@ -86,16 +84,51 @@ class Player extends HellSprite {
 				let pair = pairs[i];
 				if (pair.bodyA.isTrigger && pair.bodyB.parent.isPlayer) {
 					pair.bodyA.callback();
+					continue;
 				}
 				
 				if (pair.bodyB.isTrigger && pair.bodyA.parent.isPlayer) {
 					pair.bodyB.callback();
+					continue;
 				}
 
-				// if (pair.bodyA.calledBack) Composite.remove(physics.engine.world, pair.bodyA);
-				// if (pair.bodyB.calledBack) Composite.remove(physics.engine.world, pair.bodyB);
+				if (pair.bodyA.isPlatform && pair.bodyB.parent.isPlayer) {
+					if (!this.plats.includes(pair.bodyA.id)) {
+						this.plats.push(pair.bodyA.id);
+					}
+					continue;
+				}
 
+				if (pair.bodyB.isPlatform && pair.bodyA.parent.isPlayer) {
+					if (!this.plats.includes(pair.bodyB.id)) {
+						this.plats.push(pair.bodyB.id);
+					}
+					continue;
+				}
 			}
+		});
+
+		Events.on(physics.engine, 'collisionEnd', event => {
+			if (!player.landed) return;
+			let pairs = event.pairs;
+
+			for (let i = 0, p = pairs.length; i < p; i++) {
+				let pair = pairs[i];
+				// console.log('pairs', pair.bodyA.id, pair.bodyB.id)
+				let indexA = this.plats.indexOf(pair.bodyA.id);
+				// console.log('A', indexA)
+				if (indexA >= 0) {
+					this.plats.splice(indexA, 1);
+					continue;
+				}
+				let indexB = this.plats.indexOf(pair.bodyB.id);
+				// console.log('B', indexB)
+				if (indexB >= 0) {
+					this.plats.splice(indexB, 1);
+				}
+			}
+
+			console.log('end', this.plats);
 		});
 	}
 
@@ -126,7 +159,7 @@ class Player extends HellSprite {
 		if (this.input.jump) {
 			if (!this.jumpJustPressed) {
 				if (this.blocked.down || this.jumpCount < this.jumpMax) {
-					Body.setVelocity(this.body, {x : this.body.velocity.x, y : -12});
+					Body.setVelocity(this.body, { x : this.body.velocity.x, y : this.jumpSpeed });
 					this.isJumping = true;
 					this.jumpCount++;
 					this.animation.overrideProperty('wiggleSpeed', 5);
@@ -137,6 +170,9 @@ class Player extends HellSprite {
 						this.sfx.jump[0].currentTime = 0;
 						this.sfx.jump[0].play();
 					}
+					// if jump turned off collision filter for platforms, but not triggers
+					this.body.collisionFilter.mask = Constants.TRIGGER_CATEGORY;
+					this.platformPassthrough = true;
 				}
 			}
 			this.jumpJustPressed = true;
@@ -147,26 +183,33 @@ class Player extends HellSprite {
 		let state = this.direction == 1 ? 'idle_right' : 'idle_left';
 
 
-
 		if (this.isJumping || !this.blocked.down) {
 			state = this.direction == 1 ? 'jump_right' : 'jump_left';
 			// camera.lerpToPlayer();
 		}
 
+		// console.log(this.plats)
+		if (this.platformPassthrough) {
+			if (this.body.velocity.y >= 0 && this.plats.length === 0) {
+				this.body.collisionFilter.mask = Constants.TRIGGER_CATEGORY | Constants.PLATFORM_CATEGORY;
+				this.platformPassthrough = false;
+			}
+		}
+
 		if (this.input.right) {
-			Body.setVelocity(player.body, {x : 3, y : player.body.velocity.y});
+			Body.setVelocity(player.body, { x: 3, y: player.body.velocity.y });
 			this.direction = 1;
 			if (!this.isJumping) state = 'right';
 		}
 
 		if (this.input.left) {
-			Body.setVelocity(player.body, {x : -3, y : player.body.velocity.y});
+			Body.setVelocity(player.body, { x: -3, y: player.body.velocity.y });
 			this.direction = -1;
 			if (!this.isJumping) state = 'left';
 		}
 
-		this.position[0] = Math.round(this.body.position.x);
-		this.position[1] = Math.round(this.body.position.y);
+		this.mapPosition[0] = Math.round(this.body.position.x);
+		this.mapPosition[1] = Math.round(this.body.position.y);
 
 		this.animation.state = state;
 
