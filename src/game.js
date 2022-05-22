@@ -55,7 +55,8 @@ if (window.parent !== window) {
 
 
 const { Engine, Bodies, Body, Composite, Runner, Events } = Matter;
-let player;
+let player, buffer, origin, view = 'scene'; // view state -- player, view, lerp
+let offset = [0, 0], playerOffset = [0, 0];
 let firstLevel;
 gme.levels = [];
 let scenery = new Scenery();
@@ -85,12 +86,16 @@ gme.start = function() {
 	gme.currentLevel = [Constants.PLAYER_START_X, 0];
 	gme.lowestLevel = 0;
 
-	player = new Player(Constants.PLAYER_START_X, -256, gme.anims.sprites.player);
+	player = new Player(Constants.PLAYER_START_X, Constants.PLAYER_START_Y, gme.anims.sprites.player);
 	gme.scenes.game.addToDisplay(player);
 	
 	scenery.setupBG();
 	scenery.setupFG();
 	gme.scenes.current = 'splash';
+
+	buffer = 0; // Math.round(Math.min(128, gme.width / 4));
+	origin = [gme.view.halfWidth - Constants.PLAYER_START_X, gme.view.halfHeight];
+	offset = [gme.view.halfWidth - Constants.PLAYER_START_X, gme.view.halfHeight];
 };
 
 // update by matter ...
@@ -112,10 +117,49 @@ gme.draw = function() {
 	}
 
 	gme.ctx.clearRect(0, 0, gme.view.width, gme.view.height);
-	const offset = [
-		gme.view.halfWidth - player.mapPosition[0], 
-		gme.view.halfHeight - player.mapPosition[1]
-	];
+
+	// get player sides buffer
+	if (view === 'scene') {
+		// console.log(player.x, offset[0], gme.view.halfWidth, buffer, offset[0] - gme.view.halfWidth + buffer )
+		const insideBuffer =
+			player.x > offset[0] - gme.view.halfWidth + buffer // && 
+			// player.x < offset[0] + origin[0] - buffer // &&
+			// player.y > offset[1] - gme.view.halfHeight + buffer && 
+			// player.y < offset[1] + gme.view.halfHeight - buffer;
+		// console.log('inside', insideBuffer, player.x);
+		
+		if (!insideBuffer && player.landedFirst) {
+			view = 'lerp';
+		}
+	}
+
+	// const offset = [0, 0];
+	// const playerOffset = [0, 0];
+
+	// player is inside edges, player should move before scene
+	if (view === 'scene') {
+		playerOffset[0] = player.mapPosition[0] - Constants.PLAYER_START_X - (origin[0] - offset[0]);
+		playerOffset[1] = player.mapPosition[1];
+
+		// offset[0] = origin[0];
+		// offset[1] = origin[1];
+		
+	} else if (view === 'lerp') {
+
+		const d = offset[0] - (gme.view.halfWidth - player.mapPosition[0]);
+		// console.log('dist', d, Math.abs(d) < 5);
+		playerOffset[0] = d;
+		offset[0] += 3;
+
+		if (Math.abs(d) < 6) {
+			view = 'scene';
+			console.log(player.x, gme.view.halfWidth);
+		}
+	
+	} else {
+		// offset[0] = gme.view.halfWidth - player.mapPosition[0];
+		// offset[1] = gme.view.halfHeight - player.mapPosition[1];
+	}
 
 	// "parrallaxx bg"
 	gme.scenes.bg.update([offset[0]/50, offset[1]/50]);
@@ -123,6 +167,8 @@ gme.draw = function() {
 	
 	gme.scenes.current.update(offset);
 	gme.scenes.current.display();
+	player.update(playerOffset);
+	// console.log('offset', player.x);
 	physics.render(offset);
 
 	gme.scenes.fg.update([-offset[0]/50, -offset[1]/50]);

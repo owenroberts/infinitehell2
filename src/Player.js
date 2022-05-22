@@ -1,6 +1,6 @@
 class Player extends HellSprite {
 	constructor(x, y, animation, debug) {
-		super({ x: GAME.halfWidth, y: GAME.halfHeight });
+		super({ x: GAME.view.halfWidth, y: GAME.view.halfHeight });
 		this.mapPosition = [Math.round(x), Math.round(y)];
 		this.center = true; /* need better name */
 		// this.setCollider(25, 6, 78, 90);
@@ -24,6 +24,7 @@ class Player extends HellSprite {
 		this.hasSFX = false;
 
 		this.landed = false;
+		this.landedFirst = false;
 		this.setupPhysics();
 	}
 
@@ -64,7 +65,7 @@ class Player extends HellSprite {
 		Events.on(physics.engine, 'collisionActive', event => {
 			let pairs = event.pairs;
 
-			for(let i = 0, p = pairs.length; i < p; i++) {
+			for (let i = 0, p = pairs.length; i < p; i++) {
 				let pair = pairs[i];
 				if ((pair.bodyA === this.sensors.down || 
 					pair.bodyB === this.sensors.down) 
@@ -72,13 +73,7 @@ class Player extends HellSprite {
 					// console.log(pair.bodyA.isTrigger, pair.bodyB.isTrigger)
 					this.blocked.down = true;
 					if (!player.landed) player.landed = true;
-				}
-
-				if (pair.bodyA.isPlatform || pair.bodyB.isPlatform) {
-					console.log(
-						pair.bodyA.isPlatform, pair.bodyB.parent.isPlayer,
-						pair.bodyB.isPlatform, pair.bodyA.parent.isPlayer,
-					)
+					if (!player.landedFirst) player.landedFirst = true;
 				}
 			}
 		});
