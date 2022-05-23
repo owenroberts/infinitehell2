@@ -1,6 +1,7 @@
 class Player extends HellSprite {
 	constructor(x, y, animation, debug) {
 		super({ x: GAME.view.halfWidth, y: GAME.view.halfHeight });
+		// this.origin = [Math.round(x), Math.round(y)];
 		this.mapPosition = [Math.round(x), Math.round(y)];
 		this.center = true; /* need better name */
 		// this.setCollider(25, 6, 78, 90);
