@@ -15,6 +15,9 @@ class Level {
 		this.tileCount = 0;
 		this.levelType = levelType;
 
+		const removeLevelsThreshold = 5;
+		const addLevelRings = 5;
+
 
 		if (y > gme.lowestLevel) gme.lowestLevel = y;
 
@@ -22,37 +25,39 @@ class Level {
 		this.width = Constants.TILE_SIZE * Constants.CELL_WIDTH * Constants.GRID_WIDTH;
 		this.height = Constants.TILE_SIZE * Constants.CELL_HEIGHT * Constants.GRID_HEIGHT;
 		this.trigger = physics.addTrigger(this.indexes, x + this.width / 2, y, this.width, this.height, () => {
-			// console.log('triggered', this.indexes);
-			// console.log(this.indexes, gme.currentLevel);
+			
+			// if in the current level ignore
 			if (this.indexes[0] === gme.currentLevel[0] && 
 				this.indexes[1] === gme.currentLevel[1]) {
 				return;
 			}
 
+			// change in up or down
 			let delta = gme.currentLevel[1] - this.indexes[1];
-
-			// camera.lerpToPlayer();
 
 			gme.currentLevel[0] = this.indexes[0];
 			gme.currentLevel[1] = this.indexes[1];
 
+			// removing levels too far away ...
 			for (let i = 0; i < gme.levels.length; i++) {
 				let indexes = gme.levels[i].indexes;
 				let dx = Math.abs(indexes[0] - this.indexes[0]);
 				let dy = Math.abs(indexes[1] - this.indexes[1]);
-				if (dx > 3 || dy > 3) {
+				// if (dx > removeLevelsThreshold || dy > removeLevelsThreshold) {
+				if (dx + dy > 10) {
+					console.log(dx, dy, dx + dy)
 					gme.levels[i].remove();
 				}
 			}
 
-			this.addLevels(7); // building levels from 5 rings out to here
+			this.addLevels(addLevelRings); // building levels from 5 rings out to here
 
 			if (doodoo) {
 				doodoo.moveTonic(delta * 2);
 				doodoo.moveBPM(delta * 2);
 			}
+
 			player.jumpSpeed -= delta / 2;
-			// console.log('jump speed', player.jumpSpeed);
 
 			if (this.indexes[1] > 0) {
 				gme.anims.sprites.platforms.overrideProperty('wiggleRange', Math.abs(this.indexes[1])/4);
@@ -92,9 +97,8 @@ class Level {
 		}
 
 		for (let i = 0; i < 9; i++) {
-
 			if (+parts.charAt(i)) {
-
+				
 				let _x = (i % 3) * Constants.TILE_SIZE * Constants.CELL_WIDTH + Constants.HALF_TILE_SIZE;
 				let _y = Math.floor(i / 3) * Constants.TILE_SIZE * Constants.CELL_HEIGHT - Constants.TILE_SIZE;
 
@@ -103,7 +107,6 @@ class Level {
 				this.tilePositions.push([x + _x + Constants.TILE_SIZE * 2, y + _y]);
 
 			}
-
 		}
 	}
 
@@ -111,30 +114,31 @@ class Level {
 
 		let level = gme.levels.filter(lvl => lvl.indexes[0] === indexes[0] && lvl.indexes[1] === indexes[1]);
 
-		if (level.length) {
+		// prevents creating levels already created ...
+		if (level.length > 0) {
 			// if the level exists add platforms
 			if (ringNumber >= 1) level.forEach(lvl => { 
 				if (lvl.tiles.length === 0) lvl.addPlatforms();
 			});
+			if (ringNumber >= 2) {
+				level[0].addLevels(ringNumber);
+			}
 			return;
 		}
 
 		let x = this.width * indexes[0];
 		let y = this.height * indexes[1];
-		// console.log(indexes, ringNumber)
 		let newLevel = new Level(indexes, x, y, ringNumber);
 	}
 
 	addLevels(ringNumber) {
-		// console.log('add levels', this.indexes, ringNumber);
 		ringNumber -= 1;
 		for (let i = 1; i <= 4; i++) {
 
 			let indexes = [
 				this.indexes[0] + (i <= 2 ? 1 : -1),
-				this.indexes[1] + (i  % 2 === 0 ? 1 : -1)
+				this.indexes[1] + (i % 2 === 0 ? 1 : -1)
 			];
-			// if (this.indexes[0] === 1 && this.indexes[1] === -1)  console.log('1, -1', this.indexes, indexes, ringNumber);
 			this.addLevel(indexes, ringNumber);
 		}
 	}

@@ -19,7 +19,7 @@ const gme = new Game({
 	multiColor: true,
 	checkRetina: true,
 	// debug: true,
-	stats: true,
+	// stats: true,
 	testPerformance: true,
 	smallCanvas: true,
 	// lowPerformance: true,
@@ -78,14 +78,14 @@ gme.start = function() {
 
 	// instructions are part of scene
 	let instructions = new HellSprite({ 
-		x: gme.view.halfWidth, 
+		x: 256, 
 		y: -128, 
 		animation: gme.anims.sprites.instructions 
 	});
 	gme.scenes.game.addSprite(instructions);
 
 	gme.levels = [];
-	gme.currentLevel = [Constants.PLAYER_START_X, 0];
+	gme.currentLevel = [0, 0];
 	gme.lowestLevel = 0;
 
 	player = new Player(Constants.PLAYER_START_X, Constants.PLAYER_START_Y, gme.anims.sprites.player);

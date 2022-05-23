@@ -78,10 +78,19 @@ class Physics {
 				for (let k = 0, parts = b.parts.length; k < parts; k++) {
 					const p = b.parts[k];
 
-					gme.ctx.moveTo(p.vertices[0].x + offset[0], p.vertices[0].y + offset[1]);
+					// gme.ctx.moveTo(p.vertices[0].x + offset[0], p.vertices[0].y + offset[1]);
+					
 					for (let j = 1, verts = p.vertices.length; j < verts; j++) {
+						// gme.ctx.lineTo(p.vertices[j - 1].x + offset[0], p.vertices[j - 1].y + offset[1]);
+						gme.ctx.moveTo(p.vertices[j - 1].x + offset[0], p.vertices[j - 1].y + offset[1]);
 						gme.ctx.lineTo(p.vertices[j].x + offset[0], p.vertices[j].y + offset[1]);
+
+						if (j < verts - 1) {
+							gme.ctx.moveTo(p.vertices[j - 1].x + offset[0], p.vertices[j - 1].y + offset[1]);
+							gme.ctx.lineTo(p.vertices[j + 1].x + offset[0], p.vertices[j + 1].y + offset[1]);
+						}
 					}
+					
 					gme.ctx.lineTo(p.vertices[0].x + offset[0], p.vertices[0].y + offset[1]);
 				}
 				gme.ctx.stroke();
