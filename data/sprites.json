@@ -5,8 +5,8 @@
 	"fire" : { "src": "drawings/fire.json" },
 	"land" : { "src": "drawings/land.json" },
 	"platforms" : { "src": "drawings/platforms_2.json" },
-	"instructions": { "src": "drawings/instructions.json" },
-	"splash": { "src": "drawings/splash.json" },
+	"instructions": { "src": "drawings/instructions-1.json" },
+	"splash": { "src": "drawings/splash-1.json" },
 	"foregrounds": { "src": "drawings/foregrounds.json" }
 
 }

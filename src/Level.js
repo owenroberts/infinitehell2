@@ -14,10 +14,7 @@ class Level {
 		this.tilePositions = [];
 		this.tileCount = 0;
 		this.levelType = levelType;
-
-		const removeLevelsThreshold = 5;
-		const addLevelRings = 5;
-
+		this.triggered = false;
 
 		if (y > gme.lowestLevel) gme.lowestLevel = y;
 
@@ -26,6 +23,8 @@ class Level {
 		this.height = Constants.TILE_SIZE * Constants.CELL_HEIGHT * Constants.GRID_HEIGHT;
 		this.trigger = physics.addTrigger(this.indexes, x + this.width / 2, y, this.width, this.height, () => {
 			
+			this.triggered = true;
+
 			// if in the current level ignore
 			if (this.indexes[0] === gme.currentLevel[0] && 
 				this.indexes[1] === gme.currentLevel[1]) {
@@ -44,20 +43,19 @@ class Level {
 				let dx = Math.abs(indexes[0] - this.indexes[0]);
 				let dy = Math.abs(indexes[1] - this.indexes[1]);
 				// if (dx > removeLevelsThreshold || dy > removeLevelsThreshold) {
-				if (dx + dy > 10) {
-					console.log(dx, dy, dx + dy)
+				if (dx + dy > Constants.REMOVE_RINGS) {
 					gme.levels[i].remove();
 				}
 			}
 
-			this.addLevels(addLevelRings); // building levels from 5 rings out to here
+			this.addLevels(Constants.LEVEL_RINGS); // building levels from 5 rings out to here
 
 			if (doodoo) {
 				doodoo.moveTonic(delta * 2);
 				doodoo.moveBPM(delta * 2);
 			}
 
-			player.jumpSpeed -= delta / 2;
+			player.jumpSpeed -= delta * Constants.SPEED_CHANGE;
 
 			if (this.indexes[1] > 0) {
 				gme.anims.sprites.platforms.overrideProperty('wiggleRange', Math.abs(this.indexes[1])/4);
@@ -68,18 +66,47 @@ class Level {
 			}
 		});
 
-		// console.log(indexes, ringNumber);
 		gme.levels.push(this);
 
 		if (ringNumber >= 2) this.addPlatforms(levelType);
 		if (ringNumber >= 1) this.addLevels(ringNumber);
+
+		this.platformLife = 30; // Cool.randomInt(120, 360);
+		this.lifeCounter = 0;
+		this.removeCount = 0;
 	}
 
 	updateTiles() {
-		if (this.tileCount === this.tilePositions.length) return;
-		let [x, y] = this.tilePositions[this.tileCount];
-		this.tiles.push(physics.addBody(x, y, Constants.TILE_SIZE, this.animationFrame));
-		this.tileCount++;
+		// if (this.tileCount === this.tilePositions.length) return;
+		if (this.tileCount < this.tilePositions.length) {
+			let [x, y] = this.tilePositions[this.tileCount];
+			this.tiles.push(physics.addBody(x, y, Constants.TILE_SIZE, this.animationFrame));
+			this.tileCount++;
+			return;
+		}
+
+		return;
+		if (!this.triggered) return;
+
+		if (this.lifeCounter < this.platformLife) {
+			this.lifeCounter++;
+			return;
+		}
+
+		console.log(this.removeCount, this.tiles)
+		if (this.tiles.length > 0) {
+			Composite.remove(physics.engine.world, this.tiles[0].body);
+			gme.scenes.game.remove(this.tiles[0]);
+			this.tiles.splice(0, 1);
+			return;
+		}
+
+		this.tilesAdded = false;
+		this.platformLife = Cool.randomInt(120, 360);
+		this.lifeCounter = 0;
+		this.tileCount = 0;
+		this.tilePositions = [];
+		this.addPlatforms();
 	}
 
 	addPlatforms(parts) {

@@ -19,7 +19,7 @@ const gme = new Game({
 	multiColor: true,
 	checkRetina: true,
 	// debug: true,
-	// stats: true,
+	stats: true,
 	testPerformance: true,
 	smallCanvas: true,
 	// lowPerformance: true,
@@ -58,7 +58,6 @@ if (window.parent !== window) {
 const { Engine, Bodies, Body, Composite, Runner, Events } = Matter;
 let player, buffer, origin, view = 'scene'; // view state -- player, view, lerp
 let offset = [0, 0], playerOffset = [0, 0];
-let lerpSpeed = 0.1;
 let firstLevel;
 gme.levels = [];
 let scenery = new Scenery();
@@ -110,14 +109,9 @@ function startGame(withSound) {
 	gme.scenes.current = 'game';
 	Runner.run(physics.engine); // start physics
 	// physics.display = true;
-	firstLevel = new Level([0, 0], 0, 0, 5, '000000111');
+	firstLevel = new Level([0, 0], 0, 0, Constants.LEVEL_RINGS, '000000111');
+	firstLevel.triggered = true;
 }
-/* debug */
-document.addEventListener('keydown', ev => {
-	if (ev.key === 'p') view = 'none';
-	if (ev.key === 'v') view = 'scene';
-	if (ev.key === 'l') view = 'lerp';
-})
 
 gme.draw = function(timeElapsed) {
 	for (let i = 0; i < gme.levels.length; i++) {
@@ -128,11 +122,12 @@ gme.draw = function(timeElapsed) {
 
 	// get player sides buffer
 	if (view === 'scene') {
+		// console.log(player.x, player.position[0], gme.view.width, gme.view.width - buffer)
 		const insideBuffer =
-			player.x > buffer && 
-			player.x < gme.view.width - buffer &&
-			player.y > buffer && 
-			player.y < gme.view.height - buffer;
+			player.position[0] > buffer && 
+			player.position[0] < gme.view.width - buffer &&
+			player.position[1] > buffer && 
+			player.position[1] < gme.view.height - buffer;
 
 		if (!insideBuffer && player.landedFirst) {
 			view = 'lerp';
@@ -152,23 +147,11 @@ gme.draw = function(timeElapsed) {
 			offset[1] - (gme.view.halfHeight - player.mapPosition[1])
 		];
 
-		if (lerpSpeed * timeElapsed < Math.abs(d[0])) {
-			playerOffset[0] = d[0];	
-			// offset[0] += lerpSpeed * timeElapsed * -Math.sign(d[0]);
+		playerOffset[0] = d[0];	
+		offset[0] -= (d[0] / 10) * (timeElapsed / 100);
 
-			// lerp based on distance
-			offset[0] -= d[0] / 10;
-
-		}
-		// lerp unless value is smaller than lerp
-		// offset[0] += Math.min(Math.abs(d[0]), lerpSpeed * timeElapsed) * -Math.sign(d[0]);
-
-		if (lerpSpeed * timeElapsed < Math.abs(d[1])) {
-			playerOffset[1] = d[1];
-			// offset[1] += lerpSpeed * timeElapsed * -Math.sign(d[1]);
-			offset[1] -= d[1] / 10;
-		}
-		// offset[1] += Math.min(Math.abs(d[1]), lerpSpeed * timeElapsed) * -Math.sign(d[1]);
+		playerOffset[1] = d[1];
+		offset[1] -= (d[1] / 10) * (timeElapsed / 100);
 
 		if (Math.abs(d[0] + d[1]) < 10) {
 			view = 'scene';

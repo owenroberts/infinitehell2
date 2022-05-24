@@ -7,7 +7,7 @@ class Player extends HellSprite {
 		// this.setCollider(25, 6, 78, 90);
 
 		this.debug = debug || false;
-		this.speed = [1, 1];
+		this.speed = Constants.PLAYER_SPEED;
 		this.jumpSpeed = Constants.PLAYER_JUMP_SPEED;
 		this.jumpJustPressed = false;
 		this.isJumping = true; // starts out falling
@@ -37,7 +37,7 @@ class Player extends HellSprite {
 		this.sensors = {};
 
 		let [x, y] = this.mapPosition;
-		let [w, h] = [56, 56];
+		let [w, h] = [56, 64];
 		let s = 10; // sensor size
 
 		this.sensors.down = Bodies.rectangle(x, y + h / 2, w / 2, s, { isSensor : true });
@@ -109,8 +109,8 @@ class Player extends HellSprite {
 		this.input.right = false;
 		this.input.left = false;
 		this.input.jump = false;
-		Body.setPosition(this.body, { x : Constants.PLAYER_START_X, y : Constants.PLAYER_START_Y });
-		Body.setVelocity(this.body, { x : 0, y : 0 });
+		Body.setPosition(this.body, { x: Constants.PLAYER_START_X, y: Constants.PLAYER_START_Y });
+		Body.setVelocity(this.body, { x: 0, y : 0 });
 	}
 
 	physicsUpdate() {
@@ -151,10 +151,8 @@ class Player extends HellSprite {
 
 		if (this.isJumping || !this.blocked.down) {
 			state = this.direction == 1 ? 'jump_right' : 'jump_left';
-			// camera.lerpToPlayer();
 		}
 
-		// console.log(this.plats)
 		if (this.platformPassthrough) {
 			if (this.body.velocity.y >= 0 && this.plats.length === 0) {
 				this.body.collisionFilter.mask = Constants.TRIGGER_CATEGORY | Constants.PLATFORM_CATEGORY;
@@ -163,19 +161,19 @@ class Player extends HellSprite {
 		}
 
 		if (this.input.right) {
-			Body.setVelocity(player.body, { x: 3, y: player.body.velocity.y });
+			Body.setVelocity(player.body, { x: this.speed, y: player.body.velocity.y });
 			this.direction = 1;
 			if (!this.isJumping) state = 'right';
 		}
 
 		if (this.input.left) {
-			Body.setVelocity(player.body, { x: -3, y: player.body.velocity.y });
+			Body.setVelocity(player.body, { x: -this.speed, y: player.body.velocity.y });
 			this.direction = -1;
 			if (!this.isJumping) state = 'left';
 		}
 
 		this.mapPosition[0] = Math.round(this.body.position.x);
-		this.mapPosition[1] = Math.round(this.body.position.y);
+		this.mapPosition[1] = Math.round(this.body.position.y) - 8;
 
 		this.animation.state = state;
 
