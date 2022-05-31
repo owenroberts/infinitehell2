@@ -2,7 +2,7 @@ class Physics {
 	constructor() {
 		this.display = false;
 		this.engine = Engine.create();
-		this.engine.gravity.y = 2;
+		this.engine.gravity.y = Constants.GRAVITY;
 
 		this.defaultOptions = {
 			restitution: 0.1,

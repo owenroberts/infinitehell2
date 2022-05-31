@@ -11,6 +11,8 @@ const Constants = {
 	LERP_THRESHOLD: 10, // stop lerping
 	PARALAX_SPEED: 0.02,
 
+	GRAVITY: 2,
+
 	PLAYER_START_X: 480,
 	PLAYER_START_Y: -256,
 	PLAYER_SPEED: 3,

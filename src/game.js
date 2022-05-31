@@ -20,9 +20,12 @@ const gme = new Game({
 	checkRetina: true,
 	// debug: true,
 	stats: true,
+	// ignoreAlerts: true,
 	testPerformance: true,
-	smallCanvas: true,
+	smallCanvas: false,
 	// lowPerformance: true,
+	useSVGFilterOnLow: true,
+	// svgFilter: true,
 	suspend: true,
 	events: isMobile ? ['touch'] : ['keyboard', 'mouse'],
 	scenes: ['game', 'splash', 'loading', 'bg', 'fg'],
@@ -105,7 +108,12 @@ function startGame(withSound) {
 		sfxSetup();
 	}
 	gme.scenes.current = 'game';
-	Runner.run(physics.engine); // start physics
+	// Runner.run(physics.engine); // start physics
+	const runner = Runner.create({
+		delta: 1000 / 60,
+		isFixed: true,
+	});
+	Runner.run(runner, physics.engine);
 	// physics.display = true;
 	firstLevel = new Level([0, 0], 0, 0, Constants.LEVEL_RINGS, '000000111');
 	firstLevel.triggered = true;
