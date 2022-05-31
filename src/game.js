@@ -19,7 +19,7 @@ const gme = new Game({
 	multiColor: true,
 	checkRetina: true,
 	// debug: true,
-	// stats: true,
+	stats: true,
 	testPerformance: true,
 	smallCanvas: true,
 	// lowPerformance: true,
@@ -53,7 +53,6 @@ if (window.parent !== window) {
 	loadingInterval = setInterval(loadingAnimation, 1000 / 12);
 	gme.load({ sprites: 'data/sprites.json' }, false);
 }
-
 
 const { Engine, Bodies, Body, Composite, Runner, Events } = Matter;
 let player, buffer, origin, view = 'scene'; // view state -- player, view, lerp
@@ -97,7 +96,6 @@ gme.start = function() {
 	buffer = Math.round(Math.min(128, gme.width / 4));
 	origin = [gme.view.halfWidth - Constants.PLAYER_START_X, gme.view.halfHeight];
 	offset = [gme.view.halfWidth - Constants.PLAYER_START_X, gme.view.halfHeight];
-
 };
 
 // update by matter ...
@@ -247,7 +245,8 @@ function bgMusic() {
 		scale: [-4, -2, 0, 1, 3, 5, 7],
 		parts: parts,
 		startDuration: '8n',
-		samples: './samples/choir/' // -- add samples for sampler
+		samples: './samples/choir/', // -- add samples for sampler
+		volume: 0,
 	});
 	doodoo.setBPM(120);
 }
