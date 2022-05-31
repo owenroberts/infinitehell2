@@ -19,7 +19,7 @@ const gme = new Game({
 	multiColor: true,
 	checkRetina: true,
 	// debug: true,
-	stats: true,
+	// stats: true,
 	testPerformance: true,
 	smallCanvas: true,
 	// lowPerformance: true,
@@ -134,7 +134,6 @@ gme.draw = function(timeElapsed) {
 		}
 	}
 
-
 	// player is inside edges, player should move before scene
 	if (view === 'scene') {
 		playerOffset[0] = player.mapPosition[0] - Constants.PLAYER_START_X + (offset[0] - origin[0]);
@@ -148,18 +147,18 @@ gme.draw = function(timeElapsed) {
 		];
 
 		playerOffset[0] = d[0];	
-		offset[0] -= (d[0] / 10) * (timeElapsed / 100);
+		offset[0] -= (d[0] * Constants.LERP_SPEED) * (timeElapsed / 100);
 
 		playerOffset[1] = d[1];
-		offset[1] -= (d[1] / 10) * (timeElapsed / 100);
+		offset[1] -= (d[1] * Constants.LERP_SPEED) * (timeElapsed / 100);
 
-		if (Math.abs(d[0] + d[1]) < 10) {
+		if (Math.abs(d[0] + d[1]) < Constants.LERP_THRESHOLD) {
 			view = 'scene';
 		}
 	}
 
 	// "parrallaxx bg"
-	gme.scenes.bg.update([offset[0]/50, offset[1]/50]);
+	gme.scenes.bg.update([offset[0] * Constants.PARALAX_SPEED, offset[1] * Constants.PARALAX_SPEED]);
 	gme.scenes.bg.display([0, 0, gme.width, gme.height]);
 	
 	gme.scenes.current.update(offset);
@@ -167,10 +166,11 @@ gme.draw = function(timeElapsed) {
 	player.update(playerOffset);
 	physics.render(offset);
 
-	gme.scenes.fg.update([-offset[0]/50, -offset[1]/50]);
+	gme.scenes.fg.update([-offset[0] * Constants.PARALAX_SPEED, -offset[1] * Constants.PARALAX_SPEED]);
 	gme.scenes.fg.display([0, 0, gme.width, gme.height]);
 
-	if (player.mapPosition[1] > gme.lowestLevel + gme.view.height) {
+	if ((player.mapPosition[1] > gme.lowestLevel + gme.view.height) ||
+		(player.mapPosition[1] > 13 * gme.view.height)) {
 		gme.reset();		
 	}
 };

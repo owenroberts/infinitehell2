@@ -7,6 +7,10 @@ const Constants = {
 	GRID_WIDTH: 3,
 	GRID_HEIGHT: 3,
 
+	LERP_SPEED: 0.1, // bigger is faster
+	LERP_THRESHOLD: 10, // stop lerping
+	PARALAX_SPEED: 0.02,
+
 	PLAYER_START_X: 480,
 	PLAYER_START_Y: -256,
 	PLAYER_SPEED: 3,

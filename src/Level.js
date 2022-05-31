@@ -85,7 +85,7 @@ class Level {
 			return;
 		}
 
-		return;
+		// return;
 		if (!this.triggered) return;
 
 		if (this.lifeCounter < this.platformLife) {
@@ -93,7 +93,6 @@ class Level {
 			return;
 		}
 
-		console.log(this.removeCount, this.tiles)
 		if (this.tiles.length > 0) {
 			Composite.remove(physics.engine.world, this.tiles[0].body);
 			gme.scenes.game.remove(this.tiles[0]);
